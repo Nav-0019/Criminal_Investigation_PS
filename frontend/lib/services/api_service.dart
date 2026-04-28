@@ -14,7 +14,7 @@ class ApiConfig {
   /// Production (deployed to Railway/Render/Cloud Run):
   ///   static const String baseUrl = 'https://your-app.up.railway.app';
   ///
-  static const String baseUrl = 'https://criminalinvestigationps-production.up.railway.app';
+  static const String baseUrl = 'https://shubham0019-nammashield-api.hf.space';
 
   /// Request timeout duration
   static const Duration timeout = Duration(seconds: 120);
