@@ -9,6 +9,8 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
+# Install CPU-only PyTorch to keep image size small for Railway
+RUN pip install --no-cache-dir torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
