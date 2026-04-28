@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -11,11 +13,17 @@ void main() {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const NammaShieldApp());
+
+  final prefs = await SharedPreferences.getInstance();
+  final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+
+  runApp(NammaShieldApp(hasCompletedOnboarding: hasCompletedOnboarding));
 }
 
 class NammaShieldApp extends StatelessWidget {
-  const NammaShieldApp({super.key});
+  final bool hasCompletedOnboarding;
+  
+  const NammaShieldApp({super.key, required this.hasCompletedOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +31,7 @@ class NammaShieldApp extends StatelessWidget {
       title: 'NammaShield',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const SplashScreen(),
+      home: hasCompletedOnboarding ? const HomeScreen() : const SplashScreen(),
     );
   }
 }

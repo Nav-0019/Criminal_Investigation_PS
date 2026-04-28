@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -65,6 +66,9 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     var notifStatus = await Permission.notification.request();
     
     if (micStatus.isGranted || notifStatus.isGranted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasCompletedOnboarding', true);
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
