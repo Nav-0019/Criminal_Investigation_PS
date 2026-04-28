@@ -4,10 +4,26 @@ import 'home_screen.dart';
 import 'upload_screen.dart';
 
 class ResultScreen extends StatefulWidget {
-  const ResultScreen({super.key, required this.fileName, required this.isHighRisk, this.filePath});
+  const ResultScreen({
+    super.key,
+    required this.fileName,
+    required this.isHighRisk,
+    this.filePath,
+    this.riskLevel = 'LOW',
+    this.transcript = '',
+    this.fraudScore = 0,
+    this.highlightedWords = const [],
+    this.fraudTypes = const [],
+  });
+
   final String fileName;
   final String? filePath;
   final bool isHighRisk;
+  final String riskLevel;
+  final String transcript;
+  final int fraudScore;
+  final List<String> highlightedWords;
+  final List<String> fraudTypes;
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -34,27 +50,53 @@ class _ResultScreenState extends State<ResultScreen>
     super.dispose();
   }
 
+  // ── Risk color helpers ──────────────────────────────────────────────────
+  bool get _isMedium => widget.riskLevel == 'MEDIUM';
+  bool get _isHigh => widget.isHighRisk;
+  bool get _isDangerous => _isHigh || _isMedium;
+
+  Color get _riskColor => _isHigh ? AppColors.highRed : _isMedium ? AppColors.medAmber : AppColors.lowGreen;
+  Color get _riskDark => _isHigh ? AppColors.highRedDark : _isMedium ? AppColors.medAmberDark : AppColors.lowGreenDark;
+  Color get _riskDeep => _isHigh ? AppColors.highRedDeep : _isMedium ? AppColors.medAmberDark : AppColors.lowGreenDeep;
+  Color get _riskBg => _isHigh ? AppColors.highRedBg : _isMedium ? AppColors.medAmberBg : AppColors.lowGreenBg;
+  Color get _riskBorder => _isHigh ? AppColors.highRedBorder : _isMedium ? const Color(0xFFE8D5A8) : AppColors.lowGreenBorder;
+  Color get _riskAccent => _isHigh ? AppColors.highRedAccent : _isMedium ? const Color(0xFFFFF8EE) : AppColors.lowGreenAccent;
+
+  String get _riskLabel {
+    switch (widget.riskLevel) {
+      case 'HIGH': return 'HIGH RISK';
+      case 'MEDIUM': return 'MEDIUM RISK';
+      default: return 'LOW RISK';
+    }
+  }
+
+  String get _riskEmoji {
+    switch (widget.riskLevel) {
+      case 'HIGH': return '🚨';
+      case 'MEDIUM': return '⚠️';
+      default: return '✅';
+    }
+  }
+
+  String _formatFraudType(String type) {
+    return type
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final high = widget.isHighRisk;
+    final suspiciousPhrases = widget.highlightedWords;
 
-    final riskColor   = high ? AppColors.highRed    : AppColors.lowGreen;
-    final riskDark    = high ? AppColors.highRedDark : AppColors.lowGreenDark;
-    final riskDeep    = high ? AppColors.highRedDeep : AppColors.lowGreenDeep;
-    final riskBg      = high ? AppColors.highRedBg   : AppColors.lowGreenBg;
-    final riskBorder  = high ? AppColors.highRedBorder : AppColors.lowGreenBorder;
-    final riskAccent  = high ? AppColors.highRedAccent  : AppColors.lowGreenAccent;
-    final riskLabel   = high ? 'HIGH RISK'  : 'LOW RISK';
-    final riskEmoji   = high ? '🚨' : '✅';
-    final riskScore   = high ? 75  : 12;
-
-    final suspiciousPhrases = high
-        ? ['OTP', 'KYC', 'verify', 'urgent', 'account', 'bank']
-        : <String>[];
-
-    final transcript = high
-        ? '"Please share your OTP to complete KYC verification. Your account will be blocked if you don\'t act urgently..."'
-        : '"Hello, this is your bank calling to confirm your appointment. Is now a good time to speak about your home loan inquiry?"';
+    final transcript = widget.transcript.isEmpty
+        ? (_isHigh
+            ? 'Suspicious activity detected in call.'
+            : _isMedium
+                ? 'Some suspicious patterns detected.'
+                : 'No suspicious activity detected.')
+        : widget.transcript;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -84,12 +126,12 @@ class _ResultScreenState extends State<ResultScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 28),
                   decoration: BoxDecoration(
-                    color: riskBg,
+                    color: _riskBg,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: riskBorder, width: 1.5),
+                    border: Border.all(color: _riskBorder, width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: riskColor.withValues(alpha: 0.12),
+                        color: _riskColor.withValues(alpha: 0.12),
                         blurRadius: 20,
                         offset: const Offset(0, 6),
                       ),
@@ -97,17 +139,17 @@ class _ResultScreenState extends State<ResultScreen>
                   ),
                   child: Column(
                     children: [
-                      Text(riskEmoji, style: const TextStyle(fontSize: 44)),
+                      Text(_riskEmoji, style: const TextStyle(fontSize: 44)),
                       const SizedBox(height: 8),
-                      Text(riskLabel,
+                      Text(_riskLabel,
                           style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
-                              color: riskDark,
+                              color: _riskDark,
                               letterSpacing: -0.3)),
                       const SizedBox(height: 6),
-                      Text('Score: $riskScore / 100',
-                          style: TextStyle(fontSize: 14, color: riskDeep)),
+                      Text('Score: ${widget.fraudScore} / 100',
+                          style: TextStyle(fontSize: 14, color: _riskDeep)),
                     ],
                   ),
                 ),
@@ -119,23 +161,29 @@ class _ResultScreenState extends State<ResultScreen>
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: riskAccent,
+                  color: _riskAccent,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border(left: BorderSide(color: riskColor, width: 3)),
+                  border: Border(left: BorderSide(color: _riskColor, width: 3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      high ? '⚠ Action required' : '✓ No immediate concern',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: riskDark),
+                      _isHigh
+                          ? '⚠ Action required'
+                          : _isMedium
+                              ? '⚠ Exercise caution'
+                              : '✓ No immediate concern',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _riskDark),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      high
+                      _isHigh
                           ? 'Terminate the call immediately. Do not share any personal information.'
-                          : 'No suspicious patterns detected. Exercise normal caution.',
-                      style: TextStyle(fontSize: 13, color: riskDeep, height: 1.5),
+                          : _isMedium
+                              ? 'Be careful with this call. Verify the caller\'s identity before sharing any details.'
+                              : 'No suspicious patterns detected. Exercise normal caution.',
+                      style: TextStyle(fontSize: 13, color: _riskDeep, height: 1.5),
                     ),
                   ],
                 ),
@@ -143,8 +191,45 @@ class _ResultScreenState extends State<ResultScreen>
 
               const SizedBox(height: 20),
 
+              // ── Fraud Types ─────────────────────────────────────────────
+              if (widget.fraudTypes.isNotEmpty) ...[
+                const Text('Detected fraud categories',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: widget.fraudTypes.map((type) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.category_rounded, size: 12, color: AppColors.primary),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatFraudType(type),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
+
               // ── Suspicious Phrases ─────────────────────────────────────
-              if (high) ...[
+              if (_isDangerous && suspiciousPhrases.isNotEmpty) ...[
                 const Text('Suspicious phrases detected',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
                 const SizedBox(height: 10),
@@ -152,7 +237,7 @@ class _ResultScreenState extends State<ResultScreen>
                   spacing: 8,
                   runSpacing: 8,
                   children: suspiciousPhrases.map((phrase) {
-                    final isRed = ['OTP', 'KYC', 'verify'].contains(phrase);
+                    final isRed = _isHigh;
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
@@ -171,7 +256,7 @@ class _ResultScreenState extends State<ResultScreen>
                   }).toList(),
                 ),
                 const SizedBox(height: 20),
-              ] else ...[
+              ] else if (!_isDangerous) ...[
                 const Text('No suspicious phrases found',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
                 const SizedBox(height: 6),
@@ -200,8 +285,8 @@ class _ResultScreenState extends State<ResultScreen>
                       ],
                     ),
                     const SizedBox(height: 10),
-                    if (high)
-                      _HighlightedTranscript(text: transcript)
+                    if (_isDangerous && suspiciousPhrases.isNotEmpty)
+                      _HighlightedTranscript(text: transcript, keywords: suspiciousPhrases)
                     else
                       Text(transcript,
                           style: const TextStyle(fontSize: 13, color: AppColors.textMid, height: 1.6)),
@@ -216,8 +301,8 @@ class _ResultScreenState extends State<ResultScreen>
                 children: [
                   Expanded(
                     child: _OutlineButton(
-                      label: high ? '📤 Report' : '🏠 Home',
-                      onTap: high
+                      label: _isDangerous ? '📤 Report' : '🏠 Home',
+                      onTap: _isDangerous
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Scam report submitted to database.')),
@@ -225,7 +310,7 @@ class _ResultScreenState extends State<ResultScreen>
                             }
                           : () => Navigator.pushAndRemoveUntil(
                                 context,
-                                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                MaterialPageRoute(builder: (ctx) => const HomeScreen()),
                                 (r) => false,
                               ),
                     ),
@@ -233,8 +318,8 @@ class _ResultScreenState extends State<ResultScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: _PrimaryButton(
-                      label: high ? 'Share Result' : 'Analyse Another',
-                      onTap: high
+                      label: _isDangerous ? 'Share Result' : 'Analyse Another',
+                      onTap: _isDangerous
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Sharing analysis results…')),
@@ -242,7 +327,7 @@ class _ResultScreenState extends State<ResultScreen>
                             }
                           : () => Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (_) => const UploadScreen()),
+                                MaterialPageRoute(builder: (ctx) => const UploadScreen()),
                               ),
                     ),
                   ),
@@ -261,12 +346,13 @@ class _ResultScreenState extends State<ResultScreen>
 // ── Highlighted Transcript ─────────────────────────────────────────────────────
 
 class _HighlightedTranscript extends StatelessWidget {
-  const _HighlightedTranscript({required this.text});
+  const _HighlightedTranscript({required this.text, required this.keywords});
   final String text;
+  final List<String> keywords;
 
   @override
   Widget build(BuildContext context) {
-    final keywords = ['OTP', 'KYC', 'verification', 'account', 'urgent', 'blocked'];
+    // Split by whitespace but keep the whitespace
     final words = text.split(RegExp(r'(?<=\s)|(?=\s)'));
 
     final spans = words.map((word) {

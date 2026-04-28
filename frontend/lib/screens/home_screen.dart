@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'upload_screen.dart';
 import 'history_screen.dart';
+import 'dashboard_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -69,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen>
       case 1:
         return const HistoryScreen(embedded: true);
       case 2:
+        return const DashboardScreen(embedded: true);
+      case 3:
         return const SettingsScreen(embedded: true);
       default:
         return _AnalyseTab(
@@ -157,7 +160,7 @@ class _AnalyseTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.35),
+                color: AppColors.primary.withValues(alpha: 0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -171,7 +174,7 @@ class _AnalyseTab extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
@@ -187,7 +190,7 @@ class _AnalyseTab extends StatelessWidget {
                     Text(
                       'Protection Status',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.75),
+                          color: Colors.white.withValues(alpha: 0.75),
                           fontSize: 12),
                     ),
                     const SizedBox(height: 4),
@@ -208,7 +211,7 @@ class _AnalyseTab extends StatelessWidget {
                     Text(
                       '12 calls analysed this week',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12),
                     ),
                   ],
@@ -282,6 +285,7 @@ class _BottomNav extends StatelessWidget {
     final tabs = [
       (Icons.shield_outlined, Icons.shield_rounded, 'Analyse'),
       (Icons.history_outlined, Icons.history_rounded, 'History'),
+      (Icons.dashboard_outlined, Icons.dashboard_rounded, 'Dashboard'),
       (Icons.settings_outlined, Icons.settings_rounded, 'Settings'),
     ];
 
@@ -362,14 +366,14 @@ class _ActionCard extends StatelessWidget {
           boxShadow: isPrimary
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.25),
+                    color: AppColors.primary.withValues(alpha: 0.25),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   )
@@ -411,7 +415,7 @@ class _RecentItem extends StatelessWidget {
         border: Border.all(color: AppColors.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

@@ -85,3 +85,16 @@ app.*.map.json
 # Build reports
 **/reports/
 **/problems-report.html
+
+# Python / Backend
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+
+# Whisper model cache
+*.pt

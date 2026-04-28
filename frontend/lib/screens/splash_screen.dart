@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.18),
+                        color: AppColors.primary.withValues(alpha: 0.18),
                         blurRadius: 28,
                         offset: const Offset(0, 10),
                       ),
@@ -247,7 +247,7 @@ class _PrimaryButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.30),
+              color: AppColors.primary.withValues(alpha: 0.30),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -287,7 +287,7 @@ class _ShieldPainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = AppColors.primary.withOpacity(0.15)
+        ..color = AppColors.primary.withValues(alpha: 0.15)
         ..style = PaintingStyle.fill,
     );
     canvas.drawPath(

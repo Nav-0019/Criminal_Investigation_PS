@@ -3,9 +3,9 @@ import 'package:namma_shield/main.dart';
 
 void main() {
   testWidgets('App starts successfully', (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const NammaShieldApp());
     await tester.pumpAndSettle();
 
-    expect(find.byType(MyApp), findsOneWidget);
+    expect(find.byType(NammaShieldApp), findsOneWidget);
   });
 }
