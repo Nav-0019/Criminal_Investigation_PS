@@ -167,7 +167,7 @@ async def health():
 
 
 @app.post("/analyze/")
-async def analyze(file: UploadFile = File(...)):
+def analyze(file: UploadFile = File(...)):
     """
     Accept an audio file, transcribe it with Whisper,
     run fraud detection, and return the results.

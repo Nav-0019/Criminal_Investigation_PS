@@ -16,8 +16,8 @@ class ApiConfig {
   ///
   static const String baseUrl = 'https://shubham0019-nammashield-api.hf.space';
 
-  /// Request timeout duration
-  static const Duration timeout = Duration(seconds: 120);
+  /// Request timeout duration (increased to 5 minutes for CPU transcriptions)
+  static const Duration timeout = Duration(seconds: 300);
 }
 
 class ApiService {
