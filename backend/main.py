@@ -215,6 +215,7 @@ async def analyze(file: UploadFile = File(...)):
 # ── Entry point ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
-    port = int(os.environ.get("PORT", 8000))
+    # Hugging Face Spaces uses 7860 by default, Railway provides $PORT
+    port = int(os.environ.get("PORT", 7860))
     logger.info("Starting Namma Shield on %s:%d", host, port)
     uvicorn.run(app, host=host, port=port)
