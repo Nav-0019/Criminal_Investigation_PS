@@ -179,8 +179,13 @@ def analyze(file: UploadFile = File(...)):
 
     # Save to a temp file (supports concurrent requests)
     with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+        file.file.seek(0)
         shutil.copyfileobj(file.file, tmp)
         temp_path = tmp.name
+
+    if os.path.getsize(temp_path) == 0:
+        os.remove(temp_path)
+        raise HTTPException(status_code=400, detail="The uploaded file is empty (0 bytes). Please try selecting the file again.")
 
     try:
         logger.info("⏳ Transcribing: %s (%s)", file.filename, ext)

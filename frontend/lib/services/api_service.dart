@@ -16,8 +16,8 @@ class ApiConfig {
   ///
   static const String baseUrl = 'https://shubham0019-nammashield-api.hf.space';
 
-  /// Request timeout duration (increased to 60 minutes for massive 159MB files)
-  static const Duration timeout = Duration(minutes: 60);
+  /// Request timeout duration (increased to 5 minutes for CPU transcriptions)
+  static const Duration timeout = Duration(seconds: 300);
 }
 
 class ApiService {
@@ -45,6 +45,14 @@ class ApiService {
         throw ApiException(
           message: 'Audio file not found at path: $filePath',
           code: 'FILE_NOT_FOUND',
+        );
+      }
+
+      final fileLength = await file.length();
+      if (fileLength == 0) {
+        throw ApiException(
+          message: 'The selected file is empty (0 bytes). This usually happens if the file is corrupted or if Android blocked read access. Try selecting the file from a different folder.',
+          code: 'EMPTY_FILE',
         );
       }
 
