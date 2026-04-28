@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">172.17.62.132</domain>
+        <domain includeSubdomains="true">172.18.137.25</domain>
     </domain-config>
     <!-- For production, add your deployed domain here:
     <domain-config cleartextTrafficPermitted="false">

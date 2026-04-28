@@ -34,7 +34,7 @@ app.add_middleware(
 )
 
 # ── Whisper model ───────────────────────────────────────────────────────────────
-MODEL_SIZE = os.environ.get("WHISPER_MODEL", "tiny")  # Use 'base' or 'small' for better accuracy if RAM allows
+MODEL_SIZE = os.environ.get("WHISPER_MODEL", "base")
 model = None
 
 

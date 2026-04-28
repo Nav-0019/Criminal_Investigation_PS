@@ -14,7 +14,7 @@ class ApiConfig {
   /// Production (deployed to Railway/Render/Cloud Run):
   ///   static const String baseUrl = 'https://your-app.up.railway.app';
   ///
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://172.17.62.132:8000';
 
   /// Request timeout duration
   static const Duration timeout = Duration(seconds: 120);
