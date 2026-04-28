@@ -88,7 +88,6 @@ class AppTheme {
           seedColor: AppColors.primary,
           surface: AppColors.surface,
         ),
-        fontFamily: 'SF Pro Display',
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.background,
           elevation: 0,
