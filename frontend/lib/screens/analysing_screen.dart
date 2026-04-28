@@ -38,6 +38,8 @@ class _AnalysingScreenState extends State<AnalysingScreen>
     _startAnalysis();
   }
 
+  bool _isApiDone = false;
+
   void _startAnalysis() async {
     // Start simulating steps for visual feedback
     _simulateSteps();
@@ -51,10 +53,13 @@ class _AnalysingScreenState extends State<AnalysingScreen>
       final result = await ApiService.analyzeAudio(widget.filePath!);
 
       if (!mounted) return;
+      
+      _isApiDone = true;
 
-      // Ensure all steps are "completed" before moving to result
+      // Ensure all steps instantly mark as completed
       setState(() => _completedSteps = _steps.length);
-      await Future.delayed(const Duration(milliseconds: 500));
+      _progressCtrl.value = 1.0;
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
@@ -82,18 +87,24 @@ class _AnalysingScreenState extends State<AnalysingScreen>
       );
     } on ApiException catch (e) {
       if (!mounted) return;
+      _isApiDone = true;
       _showError(e.message);
     } catch (e) {
       if (!mounted) return;
+      _isApiDone = true;
       _showError('Connection Error: Make sure the backend is running.\n\n$e');
     }
   }
 
   void _simulateSteps() async {
     for (int i = 0; i < _steps.length; i++) {
+      if (_isApiDone) return; // Stop simulating if API is already done
       if (_completedSteps >= i + 1) continue;
+      
       await Future.delayed(Duration(milliseconds: 800 + i * 400));
-      if (!mounted) return;
+      
+      if (!mounted || _isApiDone) return;
+      
       if (_completedSteps < i + 1) {
         setState(() => _completedSteps = i + 1);
       }
