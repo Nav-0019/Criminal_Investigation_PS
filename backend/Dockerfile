@@ -20,9 +20,9 @@ COPY main.py .
 EXPOSE 8000
 
 # Environment defaults
-ENV WHISPER_MODEL=base
+ENV WHISPER_MODEL=tiny
 ENV HOST=0.0.0.0
 ENV PORT=8000
 
-# Run with uvicorn
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Run with python to gracefully handle Railway's dynamic PORT
+CMD ["python", "main.py"]
