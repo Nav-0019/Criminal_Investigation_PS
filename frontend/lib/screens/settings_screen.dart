@@ -21,15 +21,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
       children: [
         if (widget.embedded) ...[
-          const Text('Settings', style: AppTextStyles.title),
-          const SizedBox(height: 20),
+          Text('Settings', style: AppTextStyles.title),
+          SizedBox(height: 20),
         ],
 
         // ── Profile card ───────────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               colors: [Color(0xFF3B4DB8), Color(0xFF5865D4)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -52,10 +52,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Center(child: Text('👤', style: TextStyle(fontSize: 24))),
+                child: Center(child: Text('👤', style: TextStyle(fontSize: 24))),
               ),
-              const SizedBox(width: 14),
-              const Expanded(
+              SizedBox(width: 14),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -67,55 +67,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
+              Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
             ],
           ),
         ),
 
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
 
         // ── ANALYSIS Section ───────────────────────────────────────────────
         _SectionLabel(label: 'ANALYSIS'),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
 
         _SettingsCard(children: [
           _ToggleRow(
             icon: '⚡',
-            iconBg: const Color(0xFFE6F1FB),
+            iconBg: Color(0xFFE6F1FB),
             title: 'Auto-analyse on call end',
             subtitle: 'Run analysis automatically after every call',
             value: _autoAnalyse,
             onChanged: (v) => setState(() => _autoAnalyse = v),
           ),
-          const Divider(height: 1, color: AppColors.divider),
+          Divider(height: 1, color: AppColors.divider),
           _NavRow(
             icon: '🔔',
-            iconBg: const Color(0xFFFFF3E0),
+            iconBg: Color(0xFFFFF3E0),
             title: 'Alert threshold',
             subtitle: 'Notify at: $_alertThreshold',
             onTap: () => _showThresholdSheet(context),
           ),
         ]),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
+
+        // ── APPEARANCE Section ─────────────────────────────────────────────
+        _SectionLabel(label: 'APPEARANCE'),
+        SizedBox(height: 10),
+
+        _SettingsCard(children: [
+          ValueListenableBuilder<bool>(
+            valueListenable: AppTheme.themeNotifier,
+            builder: (context, isDark, _) {
+              return _ToggleRow(
+                icon: '🌙',
+                iconBg: Color(0xFFE8E5FA),
+                title: 'Dark mode',
+                subtitle: 'Switch to a darker theme',
+                value: isDark,
+                onChanged: (v) => AppTheme.toggleTheme(),
+              );
+            },
+          ),
+        ]),
+
+        SizedBox(height: 20),
 
         // ── PRIVACY Section ────────────────────────────────────────────────
         _SectionLabel(label: 'PRIVACY'),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
 
         _SettingsCard(children: [
           _ToggleRow(
             icon: '💾',
-            iconBg: const Color(0xFFEAF3DE),
+            iconBg: Color(0xFFEAF3DE),
             title: 'Store analysis history',
             subtitle: 'Saved locally on device only',
             value: _storeHistory,
             onChanged: (v) => setState(() => _storeHistory = v),
           ),
-          const Divider(height: 1, color: AppColors.divider),
+          Divider(height: 1, color: AppColors.divider),
           _ToggleRow(
             icon: '🌐',
-            iconBg: const Color(0xFFF5F0FF),
+            iconBg: Color(0xFFF5F0FF),
             title: 'Contribute to scam database',
             subtitle: 'Share anonymous trend data',
             value: _contribute,
@@ -123,52 +145,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // ── ABOUT Section ──────────────────────────────────────────────────
         _SectionLabel(label: 'ABOUT'),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
 
         _SettingsCard(children: [
           _NavRow(
             icon: '📋',
-            iconBg: const Color(0xFFF5F5F0),
+            iconBg: Color(0xFFF5F5F0),
             title: 'Privacy Policy',
             subtitle: 'How we handle your data',
             onTap: () {},
           ),
-          const Divider(height: 1, color: AppColors.divider),
+          Divider(height: 1, color: AppColors.divider),
           _NavRow(
             icon: '⭐',
-            iconBg: const Color(0xFFFFF9E6),
+            iconBg: Color(0xFFFFF9E6),
             title: 'Rate NammaShield',
             subtitle: 'Help us improve',
             onTap: () {},
           ),
-          const Divider(height: 1, color: AppColors.divider),
+          Divider(height: 1, color: AppColors.divider),
           _NavRow(
             icon: '🐛',
-            iconBg: const Color(0xFFFCEBEB),
+            iconBg: Color(0xFFFCEBEB),
             title: 'Report a bug',
             subtitle: 'Send feedback to Team Dream Smith',
             onTap: () {},
           ),
         ]),
 
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
 
         // ── Footer ─────────────────────────────────────────────────────────
         Center(
           child: Column(
             children: [
-              const Text('🛡️', style: TextStyle(fontSize: 28)),
-              const SizedBox(height: 6),
-              const Text('NammaShield',
+              Text('🛡️', style: TextStyle(fontSize: 28)),
+              SizedBox(height: 6),
+              Text('NammaShield',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textDark)),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text('v1.0.0 · Team Dream Smith',
                   style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text('AI-Powered Scam Call Detection',
                   style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
             ],
@@ -192,11 +214,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Alert Threshold', style: AppTextStyles.title),
-            const SizedBox(height: 6),
+            Text('Alert Threshold', style: AppTextStyles.title),
+            SizedBox(height: 6),
             Text('Receive notifications when risk is at or above:',
                 style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             ...options.map((opt) => GestureDetector(
                   onTap: () {
                     setState(() => _alertThreshold = opt);
@@ -225,13 +247,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       : AppColors.textDark)),
                         ),
                         if (_alertThreshold == opt)
-                          const Icon(Icons.check_circle_rounded,
+                          Icon(Icons.check_circle_rounded,
                               color: AppColors.primary, size: 20),
                       ],
                     ),
                   ),
                 )),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -249,7 +271,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         color: AppColors.textMuted,
@@ -300,13 +322,13 @@ class _ToggleRow extends StatelessWidget {
       child: Row(
         children: [
           _IconBox(icon: icon, bg: iconBg),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTextStyles.subtitle.copyWith(fontSize: 14)),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
               ],
             ),
@@ -344,18 +366,18 @@ class _NavRow extends StatelessWidget {
         child: Row(
           children: [
             _IconBox(icon: icon, bg: iconBg),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: AppTextStyles.subtitle.copyWith(fontSize: 14)),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 20),
           ],
         ),
       ),
@@ -374,7 +396,7 @@ class _IconBox extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
-      child: Center(child: Text(icon, style: const TextStyle(fontSize: 18))),
+      child: Center(child: Text(icon, style: TextStyle(fontSize: 18))),
     );
   }
 }

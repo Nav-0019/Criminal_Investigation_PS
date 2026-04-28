@@ -90,13 +90,13 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               FadeTransition(
                 opacity: _fadeIn,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'NammaShield',
                       style: TextStyle(
                         fontSize: 28,
@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       'AI that listens before scammers win',
                       style: AppTextStyles.body.copyWith(
@@ -135,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Dot indicators ───────────────────────────────────────────
               Row(
@@ -171,10 +171,14 @@ class _SplashScreenState extends State<SplashScreen>
                             builder: (_) => const PermissionsScreen()),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     GestureDetector(
-                      onTap: () {},
-                      child: const Text(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Sign in functionality coming soon!')),
+                        );
+                      },
+                      child: Text(
                         'Already have an account? Sign in',
                         style: TextStyle(
                           fontSize: 13,
@@ -186,7 +190,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              const SizedBox(height: 36),
+              SizedBox(height: 36),
             ],
           ),
         ),
@@ -209,14 +213,14 @@ class _OnboardPage extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: AppColors.textDark,
             height: 1.3,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           subtitle,
           textAlign: TextAlign.center,
@@ -256,7 +260,7 @@ class _PrimaryButton extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,

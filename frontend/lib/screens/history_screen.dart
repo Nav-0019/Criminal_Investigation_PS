@@ -6,13 +6,13 @@ class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key, this.embedded = false});
   final bool embedded;
 
-  static const _stats = [
+  List<Map<String, dynamic>> get _stats => [
     {'label': 'High Risk', 'count': '3', 'color': AppColors.highRed},
     {'label': 'Medium',    'count': '1', 'color': AppColors.medAmber},
     {'label': 'Low Risk',  'count': '8', 'color': AppColors.lowGreen},
   ];
 
-  static final _items = [
+  List<Map<String, dynamic>> get _items => [
     {
       'name': 'kyc_scam_call.wav',
       'date': 'Today · Score 75',
@@ -74,7 +74,7 @@ class HistoryScreen extends StatelessWidget {
             backgroundColor: AppColors.background,
             elevation: 0,
             floating: true,
-            title: const Text('Analysis History', style: AppTextStyles.title),
+            title: Text('Analysis History', style: AppTextStyles.title),
             centerTitle: false,
           ),
 
@@ -85,8 +85,8 @@ class HistoryScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (embedded) ...[
-                  const Text('Analysis History', style: AppTextStyles.title),
-                  const SizedBox(height: 16),
+                  Text('Analysis History', style: AppTextStyles.title),
+                  SizedBox(height: 16),
                 ],
 
                 // ── Stat cards ───────────────────────────────────────────
@@ -120,7 +120,7 @@ class HistoryScreen extends StatelessWidget {
                                 color: s['color'] as Color,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               s['label'] as String,
                               style: AppTextStyles.caption.copyWith(
@@ -134,13 +134,13 @@ class HistoryScreen extends StatelessWidget {
                   }).toList(),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Section header ───────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('All Analyses', style: AppTextStyles.subtitle),
+                    Text('All Analyses', style: AppTextStyles.subtitle),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
@@ -148,7 +148,7 @@ class HistoryScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppColors.divider),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(Icons.filter_list_rounded, size: 14, color: AppColors.textLight),
                           SizedBox(width: 4),
@@ -159,7 +159,7 @@ class HistoryScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
               ],
             ),
           ),
@@ -208,7 +208,7 @@ class HistoryScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
 
                         // Info
                         Expanded(
@@ -217,7 +217,7 @@ class HistoryScreen extends StatelessWidget {
                             children: [
                               Text(item['name'] as String,
                                   style: AppTextStyles.subtitle.copyWith(fontSize: 13)),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(item['date'] as String,
                                   style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
                             ],
@@ -241,8 +241,8 @@ class HistoryScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right_rounded,
+                        SizedBox(width: 8),
+                        Icon(Icons.chevron_right_rounded,
                             color: AppColors.textMuted, size: 18),
                       ],
                     ),

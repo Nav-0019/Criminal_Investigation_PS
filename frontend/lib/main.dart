@@ -27,11 +27,17 @@ class NammaShieldApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NammaShield',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme,
-      home: hasCompletedOnboarding ? const HomeScreen() : const SplashScreen(),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, isDark, _) {
+        return MaterialApp(
+          key: ValueKey(isDark), // Force complete rebuild on theme change
+          title: 'NammaShield',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.theme,
+          home: hasCompletedOnboarding ? const HomeScreen() : const SplashScreen(),
+        );
+      },
     );
   }
 }

@@ -111,11 +111,11 @@ class _DashboardScreenState extends State<DashboardScreen>
             backgroundColor: AppColors.background,
             elevation: 0,
             floating: true,
-            title: const Text('Dashboard', style: AppTextStyles.title),
+            title: Text('Dashboard', style: AppTextStyles.title),
             centerTitle: false,
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh_rounded,
+                icon: Icon(Icons.refresh_rounded,
                     color: AppColors.primary, size: 22),
                 onPressed: _refreshData,
               ),
@@ -132,7 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Dashboard', style: AppTextStyles.title),
+                      Text('Dashboard', style: AppTextStyles.title),
                       GestureDetector(
                         onTap: _refreshData,
                         child: Container(
@@ -143,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppColors.divider),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
                               Icon(Icons.refresh_rounded,
                                   size: 14, color: AppColors.primary),
@@ -159,7 +159,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                 ],
 
                 // ── Overview stat cards ──────────────────────────────────
@@ -176,11 +176,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ],
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Risk Distribution — Pie + Bar ────────────────────────
-                const Text('Risk Distribution', style: AppTextStyles.subtitle),
-                const SizedBox(height: 12),
+                Text('Risk Distribution', style: AppTextStyles.subtitle),
+                SizedBox(height: 12),
 
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -214,7 +214,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                     value: highRisk.toDouble() * _chartAnim.value,
                                     color: AppColors.highRed,
                                     title: '$highRisk',
-                                    titleStyle: const TextStyle(
+                                    titleStyle: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -225,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                     value: mediumRisk.toDouble() * _chartAnim.value,
                                     color: AppColors.medAmber,
                                     title: '$mediumRisk',
-                                    titleStyle: const TextStyle(
+                                    titleStyle: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -236,7 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                     value: lowRisk.toDouble() * _chartAnim.value,
                                     color: AppColors.lowGreen,
                                     title: '$lowRisk',
-                                    titleStyle: const TextStyle(
+                                    titleStyle: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -250,21 +250,21 @@ class _DashboardScreenState extends State<DashboardScreen>
                         },
                       ),
 
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
 
                       // Legend
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _legend(AppColors.highRed, 'High'),
-                          const SizedBox(width: 20),
+                          SizedBox(width: 20),
                           _legend(AppColors.medAmber, 'Medium'),
-                          const SizedBox(width: 20),
+                          SizedBox(width: 20),
                           _legend(AppColors.lowGreen, 'Low'),
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       // Bar chart
                       AnimatedBuilder(
@@ -297,7 +297,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                       interval: 2,
                                       getTitlesWidget: (val, _) => Text(
                                         val.toInt().toString(),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontSize: 10,
                                             color: AppColors.textMuted),
                                       ),
@@ -310,12 +310,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         const labels = ['High', 'Medium', 'Low'];
                                         final idx = val.toInt();
                                         if (idx < 0 || idx >= labels.length) {
-                                          return const SizedBox.shrink();
+                                          return SizedBox.shrink();
                                         }
                                         return Padding(
                                           padding: const EdgeInsets.only(top: 6),
                                           child: Text(labels[idx],
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                   fontSize: 11,
                                                   color: AppColors.textLight,
                                                   fontWeight: FontWeight.w500)),
@@ -362,11 +362,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Top Keywords ─────────────────────────────────────────
-                const Text('Top Scam Keywords', style: AppTextStyles.subtitle),
-                const SizedBox(height: 12),
+                Text('Top Scam Keywords', style: AppTextStyles.subtitle),
+                SizedBox(height: 12),
 
                 Wrap(
                   spacing: 8,
@@ -386,13 +386,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                         children: [
                           Text(
                             entry.key,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 7, vertical: 2),
@@ -402,7 +402,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                             child: Text(
                               '${entry.value}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.primary,
@@ -415,11 +415,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                   }).toList(),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Location Breakdown ───────────────────────────────────
-                const Text('Reports by Location', style: AppTextStyles.subtitle),
-                const SizedBox(height: 12),
+                Text('Reports by Location', style: AppTextStyles.subtitle),
+                SizedBox(height: 12),
 
                 Container(
                   decoration: BoxDecoration(
@@ -456,10 +456,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                                           AppColors.primary.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: const Icon(Icons.location_on_rounded,
+                                    child: Icon(Icons.location_on_rounded,
                                         size: 18, color: AppColors.primary),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -468,7 +468,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         Text(entry.key,
                                             style: AppTextStyles.subtitle
                                                 .copyWith(fontSize: 13)),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4),
                                         // Progress bar
                                         ClipRRect(
                                           borderRadius:
@@ -483,7 +483,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Text(
                                     '${entry.value} ($pct%)',
                                     style: AppTextStyles.caption.copyWith(
@@ -494,7 +494,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               ),
                             ),
                             if (idx < locations.length - 1)
-                              const Divider(
+                              Divider(
                                   height: 1, color: AppColors.divider),
                           ],
                         );
@@ -503,15 +503,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 buildHeatmap(),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // ── Recent Reports ───────────────────────────────────────
-                const Text('Recent Reports', style: AppTextStyles.subtitle),
-                const SizedBox(height: 12),
+                Text('Recent Reports', style: AppTextStyles.subtitle),
+                SizedBox(height: 12),
               ],
             ),
           ),
@@ -551,7 +551,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
 
                       // Info
                       Expanded(
@@ -561,7 +561,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             Text(report['file'] as String,
                                 style:
                                     AppTextStyles.subtitle.copyWith(fontSize: 13)),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               '${report['time']} · ${report['keyword']}',
                               style: AppTextStyles.caption
@@ -624,7 +624,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         child: Column(
           children: [
             Icon(icon, size: 20, color: color),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               value.toString(),
               style: TextStyle(
@@ -633,7 +633,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 color: color,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               title,
               style: AppTextStyles.caption
@@ -707,9 +707,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             borderRadius: BorderRadius.circular(3),
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(label,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 12,
                 color: AppColors.textMid,
                 fontWeight: FontWeight.w500)),

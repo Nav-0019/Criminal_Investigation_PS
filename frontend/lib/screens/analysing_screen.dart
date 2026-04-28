@@ -13,10 +13,8 @@ class AnalysingScreen extends StatefulWidget {
 }
 
 class _AnalysingScreenState extends State<AnalysingScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late final AnimationController _spinCtrl;
-  late final AnimationController _progressCtrl;
-  late final Animation<double> _progress;
 
   int _completedSteps = 0;
   String? _errorMessage;
@@ -32,16 +30,12 @@ class _AnalysingScreenState extends State<AnalysingScreen>
   void initState() {
     super.initState();
     _spinCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
-    _progressCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 3400));
-    _progress = CurvedAnimation(parent: _progressCtrl, curve: Curves.easeInOut);
-    _progressCtrl.forward();
     _startAnalysis();
   }
 
   bool _isApiDone = false;
 
   void _startAnalysis() async {
-    // Start simulating steps for visual feedback
     _simulateSteps();
 
     if (widget.filePath == null || widget.filePath!.isEmpty) {
@@ -58,12 +52,10 @@ class _AnalysingScreenState extends State<AnalysingScreen>
 
       // Ensure all steps instantly mark as completed
       setState(() => _completedSteps = _steps.length);
-      _progressCtrl.value = 1.0;
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
-      // Determine risk level from backend response
       final String riskLevel = result['risk'] ?? 'LOW';
       final bool isHighRisk = riskLevel == 'HIGH';
 
@@ -98,7 +90,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
 
   void _simulateSteps() async {
     for (int i = 0; i < _steps.length; i++) {
-      if (_isApiDone) return; // Stop simulating if API is already done
+      if (_isApiDone) return;
       if (_completedSteps >= i + 1) continue;
       
       await Future.delayed(Duration(milliseconds: 800 + i * 400));
@@ -115,25 +107,21 @@ class _AnalysingScreenState extends State<AnalysingScreen>
     if (!mounted) return;
     setState(() => _errorMessage = message);
     _spinCtrl.stop();
-    _progressCtrl.stop();
   }
 
   void _retry() {
     setState(() {
       _errorMessage = null;
       _completedSteps = 0;
+      _isApiDone = false;
     });
     _spinCtrl.repeat();
-    _progressCtrl
-      ..reset()
-      ..forward();
     _startAnalysis();
   }
 
   @override
   void dispose() {
     _spinCtrl.dispose();
-    _progressCtrl.dispose();
     super.dispose();
   }
 
@@ -146,7 +134,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
+          child: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
         ),
         title: Text(
           _errorMessage != null ? 'Error' : 'Analysing…',
@@ -175,16 +163,16 @@ class _AnalysingScreenState extends State<AnalysingScreen>
             color: AppColors.highRedBg,
             shape: BoxShape.circle,
           ),
-          child: const Center(
+          child: Center(
             child: Icon(Icons.error_outline_rounded, color: AppColors.highRed, size: 40),
           ),
         ),
-        const SizedBox(height: 20),
-        const Text(
+        SizedBox(height: 20),
+        Text(
           'Analysis Failed',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textDark),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -194,11 +182,11 @@ class _AnalysingScreenState extends State<AnalysingScreen>
           ),
           child: Text(
             _errorMessage!,
-            style: const TextStyle(fontSize: 13, color: AppColors.highRedDeep, height: 1.5),
+            style: TextStyle(fontSize: 13, color: AppColors.highRedDeep, height: 1.5),
             textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(
           children: [
             Expanded(
@@ -211,7 +199,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.divider),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Go Back',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.textDark, fontSize: 14, fontWeight: FontWeight.w600),
@@ -219,7 +207,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: GestureDetector(
                 onTap: _retry,
@@ -236,7 +224,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
                       ),
                     ],
                   ),
-                  child: const Text(
+                  child: Text(
                     'Retry',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
@@ -264,39 +252,44 @@ class _AnalysingScreenState extends State<AnalysingScreen>
             child: CustomPaint(painter: _RingPainter()),
           ),
         ),
-        const SizedBox(height: 20),
-        const Text('Processing your call',
+        SizedBox(height: 20),
+        Text('Processing your call',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textDark)),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Text(widget.fileName,
             style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
         ...List.generate(_steps.length, (i) => _StepRow(
           step: _steps[i],
           isDone: i < _completedSteps,
           isActive: i == _completedSteps,
         )),
-        const SizedBox(height: 32),
-        AnimatedBuilder(
-          animation: _progress,
-          builder: (context, child) => Column(
+        SizedBox(height: 32),
+        TweenAnimationBuilder<double>(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+          tween: Tween<double>(
+            begin: 0,
+            end: _completedSteps / _steps.length,
+          ),
+          builder: (context, value, child) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Processing', style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
-                  Text('${(_progress.value * 100).round()}%',
+                  Text('${(value * 100).round()}%',
                       style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: _progress.value,
+                  value: value,
                   backgroundColor: AppColors.divider,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                   minHeight: 6,
                 ),
               ),
@@ -335,15 +328,15 @@ class _StepRow extends StatelessWidget {
             decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
             child: Center(
               child: isDone
-                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                  ? Icon(Icons.check_rounded, color: Colors.white, size: 14)
                   : isActive
-                      ? const SizedBox(width: 12, height: 12,
+                      ? SizedBox(width: 12, height: 12,
                           child: CircularProgressIndicator(strokeWidth: 1.8,
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                      : const SizedBox.shrink(),
+                      : SizedBox.shrink(),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
@@ -372,7 +365,7 @@ class _RingPainter extends CustomPainter {
 
     paint.shader = SweepGradient(
       colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0)],
-      stops: const [0.0, 1.0],
+      stops: [0.0, 1.0],
     ).createShader(Rect.fromCircle(center: size.center(Offset.zero), radius: size.width / 2));
 
     canvas.drawArc(

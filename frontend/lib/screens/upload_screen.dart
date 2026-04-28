@@ -107,10 +107,10 @@ class _UploadScreenState extends State<UploadScreen>
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
+          child: Icon(Icons.arrow_back_ios_new_rounded,
               color: AppColors.textDark, size: 20),
         ),
-        title: const Text('Analyse Call', style: AppTextStyles.title),
+        title: Text('Analyse Call', style: AppTextStyles.title),
         centerTitle: false,
       ),
       body: SafeArea(
@@ -120,7 +120,7 @@ class _UploadScreenState extends State<UploadScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               // ── Upload Zone ────────────────────────────────────────────
               GestureDetector(
@@ -141,7 +141,7 @@ class _UploadScreenState extends State<UploadScreen>
                     ),
                   ),
                   child: _isPicking
-                      ? const Column(
+                      ? Column(
                           children: [
                             SizedBox(
                               width: 32,
@@ -164,9 +164,9 @@ class _UploadScreenState extends State<UploadScreen>
                           children: [
                             Text(
                               hasFile ? '✅' : '📁',
-                              style: const TextStyle(fontSize: 40),
+                              style: TextStyle(fontSize: 40),
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10),
                             Text(
                               hasFile
                                   ? 'File selected — tap to change'
@@ -177,7 +177,7 @@ class _UploadScreenState extends State<UploadScreen>
                                     : AppColors.textDark,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               '.wav · .mp3 · .ogg · .m4a · .aac · .flac',
                               style: AppTextStyles.caption
@@ -188,12 +188,12 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── OR Divider ─────────────────────────────────────────────
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                       child: Divider(color: AppColors.divider, thickness: 1)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -201,12 +201,12 @@ class _UploadScreenState extends State<UploadScreen>
                         style: AppTextStyles.caption
                             .copyWith(color: AppColors.textMuted)),
                   ),
-                  const Expanded(
+                  Expanded(
                       child: Divider(color: AppColors.divider, thickness: 1)),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Record Button ──────────────────────────────────────────
               GestureDetector(
@@ -264,15 +264,15 @@ class _UploadScreenState extends State<UploadScreen>
                                     )
                                   ],
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Icon(Icons.mic_rounded,
                                       color: Colors.white, size: 26),
                                 ),
                               ),
                             )
-                          : const Text('🎙️',
+                          : Text('🎙️',
                               style: TextStyle(fontSize: 34)),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
                         _isRecording ? 'Recording…' : 'Hold to Record',
                         style: AppTextStyles.subtitle.copyWith(
@@ -281,7 +281,7 @@ class _UploadScreenState extends State<UploadScreen>
                               : AppColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         'Press & hold during a suspicious call',
                         style: AppTextStyles.caption
@@ -292,7 +292,7 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Selected File Chip ────────────────────────────────────
               if (hasFile)
@@ -309,8 +309,8 @@ class _UploadScreenState extends State<UploadScreen>
                     ),
                     child: Row(
                       children: [
-                        const Text('🎵', style: TextStyle(fontSize: 20)),
-                        const SizedBox(width: 10),
+                        Text('🎵', style: TextStyle(fontSize: 20)),
+                        SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +333,7 @@ class _UploadScreenState extends State<UploadScreen>
                         ),
                         GestureDetector(
                           onTap: () => setState(() => _pickedFile = null),
-                          child: const Icon(Icons.close_rounded,
+                          child: Icon(Icons.close_rounded,
                               color: AppColors.textLight, size: 18),
                         ),
                       ],
@@ -365,7 +365,7 @@ class _UploadScreenState extends State<UploadScreen>
                             ]
                           : [],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
@@ -384,7 +384,7 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
             ],
           ),
         ),

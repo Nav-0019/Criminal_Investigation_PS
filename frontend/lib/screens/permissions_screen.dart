@@ -16,7 +16,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   late final AnimationController _ctrl;
   late final Animation<double> _fade;
 
-  final List<_PermItem> _perms = const [
+  final List<_PermItem> _perms = [
     _PermItem(
       icon: '🎙️',
       title: 'Microphone',
@@ -87,22 +87,22 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Permission Required'),
-        content: const Text(
+        title: Text('Permission Required'),
+        content: Text(
           'Some permissions are required for the app to work properly. '
           'Please enable them in Settings.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               openAppSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text('Open Settings'),
           ),
         ],
       ),
@@ -121,7 +121,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 48),
+                SizedBox(height: 48),
 
                 Container(
                   width: 56,
@@ -130,16 +130,16 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                     color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text('🛡️', style: TextStyle(fontSize: 26)),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
-                const Text('Allow Access', style: AppTextStyles.heading),
+                Text('Allow Access', style: AppTextStyles.heading),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 Text(
                   'NammaShield needs the following permissions to protect you.',
@@ -147,7 +147,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                       .copyWith(color: AppColors.textLight),
                 ),
 
-                const SizedBox(height: 36),
+                SizedBox(height: 36),
 
                 ...List.generate(_perms.length, (i) {
                   return _PermCard(
@@ -163,7 +163,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                   onTap: _requestPermissionsAndContinue,
                 ),
 
-                const SizedBox(height: 36),
+                SizedBox(height: 36),
               ],
             ),
           ),
@@ -219,16 +219,16 @@ class _PermCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
-                child: Text(item.icon, style: const TextStyle(fontSize: 22)),
+                child: Text(item.icon, style: TextStyle(fontSize: 22)),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(item.title, style: AppTextStyles.subtitle),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     item.subtitle,
                     style: AppTextStyles.caption
@@ -237,7 +237,7 @@ class _PermCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.check_circle_rounded,
+            Icon(Icons.check_circle_rounded,
                 color: AppColors.primary, size: 22),
           ],
         ),
@@ -271,7 +271,7 @@ class _PrimaryButton extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,

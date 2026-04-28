@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen>
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulse;
 
-  final List<Map<String, dynamic>> _recent = [
+  List<Map<String, dynamic>> get _recent => [
     {
       'name': 'call_kyc_01.mp3',
       'date': 'Today, 9:15 AM',
@@ -81,6 +81,8 @@ class _HomeScreenState extends State<HomeScreen>
             context,
             MaterialPageRoute(builder: (_) => const UploadScreen()),
           ),
+          onSettings: () => setState(() => _tabIndex = 3),
+          onHistory: () => setState(() => _tabIndex = 1),
         );
     }
   }
@@ -102,25 +104,27 @@ class _HomeScreenState extends State<HomeScreen>
 
 class _AnalyseTab extends StatelessWidget {
   const _AnalyseTab(
-      {required this.recent, required this.pulse, required this.onUpload});
+      {required this.recent, required this.pulse, required this.onUpload, required this.onSettings, required this.onHistory});
   final List<Map<String, dynamic>> recent;
   final Animation<double> pulse;
   final VoidCallback onUpload;
+  final VoidCallback onSettings;
+  final VoidCallback onHistory;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
 
         // ── Top bar ────────────────────────────────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('NammaShield', style: AppTextStyles.title),
+            Text('NammaShield', style: AppTextStyles.title),
             GestureDetector(
-              onTap: () {},
+              onTap: onSettings,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -129,7 +133,7 @@ class _AnalyseTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.divider),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.settings_outlined,
                         size: 15, color: AppColors.primary),
@@ -146,13 +150,13 @@ class _AnalyseTab extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // ── Status card ────────────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               colors: [Color(0xFF3B4DB8), Color(0xFF5865D4)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -177,12 +181,12 @@ class _AnalyseTab extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text('🛡️', style: TextStyle(fontSize: 22)),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,8 +197,8 @@ class _AnalyseTab extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.75),
                           fontSize: 12),
                     ),
-                    const SizedBox(height: 4),
-                    const Row(
+                    SizedBox(height: 4),
+                    Row(
                       children: [
                         Icon(Icons.circle, color: Color(0xFF7EE89D), size: 10),
                         SizedBox(width: 6),
@@ -207,7 +211,7 @@ class _AnalyseTab extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       '12 calls analysed this week',
                       style: TextStyle(
@@ -221,7 +225,7 @@ class _AnalyseTab extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // ── Action buttons ─────────────────────────────────────────────────
         Row(
@@ -234,7 +238,7 @@ class _AnalyseTab extends StatelessWidget {
                 isPrimary: true,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: _ActionCard(
                 icon: '🎙️',
@@ -246,28 +250,31 @@ class _AnalyseTab extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
 
         // ── Recent analyses ────────────────────────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Recent Analyses', style: AppTextStyles.subtitle),
-            Text(
-              'See all',
-              style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500),
+            Text('Recent Analyses', style: AppTextStyles.subtitle),
+            GestureDetector(
+              onTap: onHistory,
+              child: Text(
+                'See all',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500),
+              ),
             ),
           ],
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
 
         ...recent.map((r) => _RecentItem(data: r)),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
       ],
     );
   }
@@ -290,7 +297,7 @@ class _BottomNav extends StatelessWidget {
     ];
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppColors.divider)),
       ),
@@ -314,7 +321,7 @@ class _BottomNav extends StatelessWidget {
                         size: 22,
                         color: active ? AppColors.primary : AppColors.textMuted,
                       ),
-                      const SizedBox(height: 3),
+                      SizedBox(height: 3),
                       Text(
                         tabs[i].$3,
                         style: TextStyle(
@@ -381,8 +388,8 @@ class _ActionCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 6),
+            Text(icon, style: TextStyle(fontSize: 24)),
+            SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
@@ -431,7 +438,7 @@ class _RecentItem extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +446,7 @@ class _RecentItem extends StatelessWidget {
                 Text(data['name'] as String,
                     style: AppTextStyles.subtitle
                         .copyWith(fontSize: 13)),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(data['date'] as String,
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.textLight)),

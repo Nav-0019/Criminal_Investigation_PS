@@ -59,8 +59,8 @@ class _ResultScreenState extends State<ResultScreen>
   Color get _riskDark => _isHigh ? AppColors.highRedDark : _isMedium ? AppColors.medAmberDark : AppColors.lowGreenDark;
   Color get _riskDeep => _isHigh ? AppColors.highRedDeep : _isMedium ? AppColors.medAmberDark : AppColors.lowGreenDeep;
   Color get _riskBg => _isHigh ? AppColors.highRedBg : _isMedium ? AppColors.medAmberBg : AppColors.lowGreenBg;
-  Color get _riskBorder => _isHigh ? AppColors.highRedBorder : _isMedium ? const Color(0xFFE8D5A8) : AppColors.lowGreenBorder;
-  Color get _riskAccent => _isHigh ? AppColors.highRedAccent : _isMedium ? const Color(0xFFFFF8EE) : AppColors.lowGreenAccent;
+  Color get _riskBorder => _isHigh ? AppColors.highRedBorder : _isMedium ? Color(0xFFE8D5A8) : AppColors.lowGreenBorder;
+  Color get _riskAccent => _isHigh ? AppColors.highRedAccent : _isMedium ? Color(0xFFFFF8EE) : AppColors.lowGreenAccent;
 
   String get _riskLabel {
     switch (widget.riskLevel) {
@@ -105,9 +105,9 @@ class _ResultScreenState extends State<ResultScreen>
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
+          child: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
         ),
-        title: const Text('Result', style: AppTextStyles.title),
+        title: Text('Result', style: AppTextStyles.title),
         centerTitle: false,
       ),
       body: SafeArea(
@@ -117,7 +117,7 @@ class _ResultScreenState extends State<ResultScreen>
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // ── Risk Badge ─────────────────────────────────────────────
               ScaleTransition(
@@ -139,15 +139,15 @@ class _ResultScreenState extends State<ResultScreen>
                   ),
                   child: Column(
                     children: [
-                      Text(_riskEmoji, style: const TextStyle(fontSize: 44)),
-                      const SizedBox(height: 8),
+                      Text(_riskEmoji, style: TextStyle(fontSize: 44)),
+                      SizedBox(height: 8),
                       Text(_riskLabel,
                           style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: _riskDark,
                               letterSpacing: -0.3)),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       Text('Score: ${widget.fraudScore} / 100',
                           style: TextStyle(fontSize: 14, color: _riskDeep)),
                     ],
@@ -155,7 +155,7 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // ── Action Banner ──────────────────────────────────────────
               Container(
@@ -176,7 +176,7 @@ class _ResultScreenState extends State<ResultScreen>
                               : '✓ No immediate concern',
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _riskDark),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       _isHigh
                           ? 'Terminate the call immediately. Do not share any personal information.'
@@ -189,13 +189,13 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Fraud Types ─────────────────────────────────────────────
               if (widget.fraudTypes.isNotEmpty) ...[
-                const Text('Detected fraud categories',
+                Text('Detected fraud categories',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -210,11 +210,11 @@ class _ResultScreenState extends State<ResultScreen>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.category_rounded, size: 12, color: AppColors.primary),
-                          const SizedBox(width: 4),
+                          Icon(Icons.category_rounded, size: 12, color: AppColors.primary),
+                          SizedBox(width: 4),
                           Text(
                             _formatFraudType(type),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
@@ -225,14 +225,14 @@ class _ResultScreenState extends State<ResultScreen>
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
 
               // ── Suspicious Phrases ─────────────────────────────────────
               if (_isDangerous && suspiciousPhrases.isNotEmpty) ...[
-                const Text('Suspicious phrases detected',
+                Text('Suspicious phrases detected',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -255,14 +255,14 @@ class _ResultScreenState extends State<ResultScreen>
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ] else if (!_isDangerous) ...[
-                const Text('No suspicious phrases found',
+                Text('No suspicious phrases found',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.textLight)),
-                const SizedBox(height: 6),
-                const Text('0 flagged keywords in this call',
+                SizedBox(height: 6),
+                Text('0 flagged keywords in this call',
                     style: TextStyle(fontSize: 13, color: AppColors.textMuted, fontStyle: FontStyle.italic)),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
 
               // ── Transcript ─────────────────────────────────────────────
@@ -276,7 +276,7 @@ class _ResultScreenState extends State<ResultScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.description_rounded, size: 15, color: AppColors.textLight),
                         SizedBox(width: 6),
@@ -284,17 +284,17 @@ class _ResultScreenState extends State<ResultScreen>
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textDark)),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     if (_isDangerous && suspiciousPhrases.isNotEmpty)
                       _HighlightedTranscript(text: transcript, keywords: suspiciousPhrases)
                     else
                       Text(transcript,
-                          style: const TextStyle(fontSize: 13, color: AppColors.textMid, height: 1.6)),
+                          style: TextStyle(fontSize: 13, color: AppColors.textMid, height: 1.6)),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── Action Buttons ─────────────────────────────────────────
               Row(
@@ -315,7 +315,7 @@ class _ResultScreenState extends State<ResultScreen>
                               ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: _PrimaryButton(
                       label: _isDangerous ? 'Share Result' : 'Analyse Another',
@@ -334,7 +334,7 @@ class _ResultScreenState extends State<ResultScreen>
                 ],
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
             ],
           ),
         ),
@@ -393,7 +393,7 @@ class _PrimaryButton extends StatelessWidget {
           boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4))],
         ),
         child: Text(label, textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -416,7 +416,7 @@ class _OutlineButton extends StatelessWidget {
           border: Border.all(color: AppColors.divider),
         ),
         child: Text(label, textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textDark, fontSize: 14, fontWeight: FontWeight.w600)),
+            style: TextStyle(color: AppColors.textDark, fontSize: 14, fontWeight: FontWeight.w600)),
       ),
     );
   }
