@@ -173,7 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconBg: Color(0xFFF5F5F0),
             title: 'Privacy Policy',
             subtitle: 'How we handle your data',
-            onTap: () {},
+            onTap: () => _showPrivacyPolicy(context),
           ),
           Divider(height: 1, color: AppColors.divider),
           _NavRow(
@@ -181,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconBg: Color(0xFFFFF9E6),
             title: 'Rate NammaShield',
             subtitle: 'Help us improve',
-            onTap: () {},
+            onTap: () => _showRatingDialog(context),
           ),
           Divider(height: 1, color: AppColors.divider),
           _NavRow(
@@ -191,8 +191,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Send feedback to Team Dream Smith',
             onTap: () async {
               final uri = Uri.parse('mailto:shubhamchauhan0019@gmail.com?subject=NammaShield%20Bug%20Report');
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri);
+              try {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Could not open email app. Please email shubhamchauhan0019@gmail.com')),
+                  );
+                }
               }
             },
           ),
@@ -275,6 +281,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 )),
             SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPrivacyPolicy(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: Text('Privacy Policy', style: AppTextStyles.title),
+        content: SingleChildScrollView(
+          child: Text(
+            'At NammaShield by Team Dream Smith, your privacy is our top priority.\n\n'
+            '1. Local Processing: All audio processing and history logs are stored exclusively on your device by default.\n\n'
+            '2. Data Security: Audio files uploaded for AI analysis are processed securely and deleted immediately after scoring. '
+            'We do not store your personal conversations or audio files on our servers.\n\n'
+            '3. Contributions: If you opt-in to contribute, only anonymized metadata (like scam keywords) is shared to improve the global detection model.\n\n'
+            'By using NammaShield, you agree to these terms.',
+            style: TextStyle(color: AppColors.textDark, height: 1.5),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Understood', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRatingDialog(BuildContext context) {
+    int rating = 5;
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.background,
+          title: Text('Rate NammaShield', style: AppTextStyles.title, textAlign: TextAlign.center),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('How is your experience so far?', style: TextStyle(color: AppColors.textLight)),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return GestureDetector(
+                    onTap: () => setDialogState(() => rating = index + 1),
+                    child: Icon(
+                      index < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: Color(0xFFFFB800),
+                      size: 40,
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(content: Text('Thank you for rating us $rating stars!')),
+                );
+              },
+              child: Text('Submit', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+            ),
           ],
         ),
       ),
