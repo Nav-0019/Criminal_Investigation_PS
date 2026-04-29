@@ -3,7 +3,10 @@ import '../theme/app_theme.dart';
 import 'upload_screen.dart';
 import 'history_screen.dart';
 import 'dashboard_screen.dart';
+import 'result_screen.dart';
 import 'settings_screen.dart';
+import '../services/history_service.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,35 +22,8 @@ class _HomeScreenState extends State<HomeScreen>
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulse;
 
-  List<Map<String, dynamic>> get _recent => [
-    {
-      'name': 'call_kyc_01.mp3',
-      'date': 'Today, 9:15 AM',
-      'risk': 'HIGH',
-      'score': 75,
-      'color': AppColors.highRed,
-      'bg': AppColors.highRedBg,
-      'fg': AppColors.highRedDark,
-    },
-    {
-      'name': 'call_bank_02.mp3',
-      'date': 'Yesterday, 3:42 PM',
-      'risk': 'LOW',
-      'score': 12,
-      'color': AppColors.lowGreen,
-      'bg': AppColors.lowGreenBg,
-      'fg': AppColors.lowGreenDark,
-    },
-    {
-      'name': 'unknown_caller.mp3',
-      'date': 'Apr 26, 11:00 AM',
-      'risk': 'MED',
-      'score': 42,
-      'color': AppColors.medAmber,
-      'bg': AppColors.medAmberBg,
-      'fg': AppColors.medAmberDark,
-    },
-  ];
+  List<HistoryItem> _recent = [];
+  int _totalScans = 0;
 
   @override
   void initState() {
@@ -57,6 +33,18 @@ class _HomeScreenState extends State<HomeScreen>
       ..repeat(reverse: true);
     _pulse = Tween<double>(begin: 0.95, end: 1.05).animate(
         CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+    
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    final items = await HistoryService.getHistory();
+    if (mounted) {
+      setState(() {
+        _totalScans = items.length;
+        _recent = items.take(3).toList();
+      });
+    }
   }
 
   @override
@@ -76,11 +64,14 @@ class _HomeScreenState extends State<HomeScreen>
       default:
         return _AnalyseTab(
           recent: _recent,
+          totalScans: _totalScans,
           pulse: _pulse,
-          onUpload: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const UploadScreen()),
-          ),
+          onUpload: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const UploadScreen()),
+            ).then((_) => _loadHistory());
+          },
           onSettings: () => setState(() => _tabIndex = 3),
           onHistory: () => setState(() => _tabIndex = 1),
         );
@@ -104,8 +95,9 @@ class _HomeScreenState extends State<HomeScreen>
 
 class _AnalyseTab extends StatelessWidget {
   const _AnalyseTab(
-      {required this.recent, required this.pulse, required this.onUpload, required this.onSettings, required this.onHistory});
-  final List<Map<String, dynamic>> recent;
+      {required this.recent, required this.totalScans, required this.pulse, required this.onUpload, required this.onSettings, required this.onHistory});
+  final List<HistoryItem> recent;
+  final int totalScans;
   final Animation<double> pulse;
   final VoidCallback onUpload;
   final VoidCallback onSettings;
@@ -213,7 +205,7 @@ class _AnalyseTab extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '12 calls analysed this week',
+                      '$totalScans calls analysed',
                       style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12),
@@ -409,67 +401,119 @@ class _ActionCard extends StatelessWidget {
 
 class _RecentItem extends StatelessWidget {
   const _RecentItem({required this.data});
-  final Map<String, dynamic> data;
+  final HistoryItem data;
+
+  Color _riskColor(String risk) {
+    if (risk == 'HIGH') return AppColors.highRed;
+    if (risk == 'MEDIUM') return AppColors.medAmber;
+    return AppColors.lowGreen;
+  }
+
+  Color _riskBg(String risk) {
+    if (risk == 'HIGH') return AppColors.highRedBg;
+    if (risk == 'MEDIUM') return AppColors.medAmberBg;
+    return AppColors.lowGreenBg;
+  }
+
+  Color _riskFg(String risk) {
+    if (risk == 'HIGH') return AppColors.highRedDark;
+    if (risk == 'MEDIUM') return AppColors.medAmberDark;
+    return AppColors.lowGreenDark;
+  }
+
+  String _formatDate(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0 && now.day == date.day) {
+      return 'Today, ${DateFormat('h:mm a').format(date)}';
+    } else if (difference.inDays == 1 || (difference.inDays == 0 && now.day != date.day)) {
+      return 'Yesterday, ${DateFormat('h:mm a').format(date)}';
+    }
+    return DateFormat('MMM d, yyyy').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.divider),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    final result = data.fullData;
+    final fraudScore = (result['fraud_score'] as num?)?.toInt() ?? 0;
+
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ResultScreen(
+            fileName: data.fileName,
+            isHighRisk: data.risk == 'HIGH',
+            riskLevel: data.risk,
+            transcript: result['transcript'] ?? '',
+            fraudScore: fraudScore,
+            highlightedWords: List<String>.from(result['highlighted_words'] ?? []),
+            fraudTypes: List<String>.from(result['fraud_types'] ?? []),
           ),
-        ],
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: data['color'] as Color,
-              shape: BoxShape.circle,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(data['name'] as String,
-                    style: AppTextStyles.subtitle
-                        .copyWith(fontSize: 13)),
-                SizedBox(height: 2),
-                Text(data['date'] as String,
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textLight)),
-              ],
-            ),
-          ),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: data['bg'] as Color,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              data['risk'] as String,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: data['fg'] as Color,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: _riskColor(data.risk),
+                shape: BoxShape.circle,
               ),
             ),
-          ),
-        ],
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(data.fileName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.subtitle
+                          .copyWith(fontSize: 13)),
+                  SizedBox(height: 2),
+                  Text('${_formatDate(data.timestamp)} · Score $fraudScore',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textLight)),
+                ],
+              ),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _riskBg(data.risk),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                data.risk,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: _riskFg(data.risk),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
