@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -14,6 +16,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _storeHistory = true;
   bool _contribute = false;
   String _alertThreshold = 'Medium & above';
+  String _userName = 'Protected User';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'Protected User';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Protected User',
+                    Text(_userName,
                         style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
                     SizedBox(height: 3),
                     Text('NammaShield v1.0 · Team Dream Smith',
@@ -130,7 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: '💾',
             iconBg: Color(0xFFEAF3DE),
             title: 'Store analysis history',
-            subtitle: 'Saved locally on device only',
+            subtitle: 'Secure Local Persistence',
             value: _storeHistory,
             onChanged: (v) => setState(() => _storeHistory = v),
           ),
@@ -173,7 +189,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconBg: Color(0xFFFCEBEB),
             title: 'Report a bug',
             subtitle: 'Send feedback to Team Dream Smith',
-            onTap: () {},
+            onTap: () async {
+              final uri = Uri.parse('mailto:shubhamchauhan0019@gmail.com?subject=NammaShield%20Bug%20Report');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            },
           ),
         ]),
 
@@ -183,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Center(
           child: Column(
             children: [
-              Text('🛡️', style: TextStyle(fontSize: 28)),
+              Image.asset('assets/logo.png', height: 40),
               SizedBox(height: 6),
               Text('NammaShield',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textDark)),

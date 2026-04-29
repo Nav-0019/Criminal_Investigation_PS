@@ -131,7 +131,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Center(
-                    child: Text('🛡️', style: TextStyle(fontSize: 26)),
+                    child: Image.asset('assets/logo.png', height: 30),
                   ),
                 ),
 

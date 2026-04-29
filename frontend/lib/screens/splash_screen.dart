@@ -82,10 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                   child: Center(
-                    child: CustomPaint(
-                      size: const Size(52, 52),
-                      painter: _ShieldPainter(),
-                    ),
+                    child: Image.asset('assets/logo.png', width: 64, height: 64),
                   ),
                 ),
               ),

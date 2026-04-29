@@ -174,7 +174,7 @@ class _AnalyseTab extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Text('🛡️', style: TextStyle(fontSize: 22)),
+                    child: Image.asset('assets/logo.png', height: 26),
                   ),
                 ),
               ),
