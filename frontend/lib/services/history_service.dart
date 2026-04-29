@@ -50,6 +50,8 @@ class HistoryService {
 
   static Future<void> saveHistory(HistoryItem item) async {
     final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('storeHistory') ?? true)) return;
+
     List<String> historyJson = prefs.getStringList(_key) ?? [];
     
     // Add new item at the beginning

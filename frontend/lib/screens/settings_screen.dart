@@ -14,7 +14,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _storeHistory = true;
-  bool _contribute = false;
   String _alertThreshold = 'Medium & above';
   String _userName = 'Protected User';
   bool _isPolice = false;
@@ -29,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('userName') ?? 'Protected User';
+      _storeHistory = prefs.getBool('storeHistory') ?? true;
       final role = prefs.getString('userRole') ?? 'Citizen';
       if (role == 'Police') {
         _isPolice = true;
@@ -147,16 +147,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Store analysis history',
               subtitle: 'Secure Local Persistence',
               value: _storeHistory,
-              onChanged: (v) => setState(() => _storeHistory = v),
-            ),
-            Divider(height: 1, color: AppColors.divider),
-            _ToggleRow(
-              icon: '🌐',
-              iconBg: Color(0xFFF5F0FF),
-              title: 'Contribute to scam database',
-              subtitle: 'Share anonymous trend data',
-              value: _contribute,
-              onChanged: (v) => setState(() => _contribute = v),
+              onChanged: (v) async {
+                setState(() => _storeHistory = v);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('storeHistory', v);
+              },
             ),
           ]),
 
