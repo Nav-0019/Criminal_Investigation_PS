@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
-
+import '../services/history_service.dart';
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key, this.embedded = false});
   final bool embedded;
@@ -15,33 +16,22 @@ class _DashboardScreenState extends State<DashboardScreen>
   late final AnimationController _animCtrl;
   late final Animation<double> _chartAnim;
 
-  // ── Mock data ──────────────────────────────────────────────────────────────
-  int totalScans = 12;
-  int highRisk = 7;
-  int mediumRisk = 3;
-  int lowRisk = 2;
+  // ── Dynamic data ──────────────────────────────────────────────────────────────
+  int totalScans = 0;
+  int highRisk = 0;
+  int mediumRisk = 0;
+  int lowRisk = 0;
 
-  final Map<String, int> keywords = {
-    'OTP': 5,
-    'KYC': 3,
-    'Blocked': 2,
-    'Bank': 4,
-    'UPI': 2,
-  };
+  Map<String, int> keywords = {};
 
   final Map<String, int> locations = {
-    'Bangalore': 6,
-    'Delhi': 3,
-    'Mumbai': 2,
-    'Chennai': 1,
+    'Bangalore': 0,
+    'Delhi': 0,
+    'Mumbai': 0,
+    'Chennai': 0,
   };
 
-  final List<Map<String, dynamic>> reports = [
-    {'time': 'Today, 2:30 PM', 'risk': 'HIGH', 'keyword': 'OTP', 'file': 'kyc_scam_call.wav'},
-    {'time': 'Today, 1:10 PM', 'risk': 'MEDIUM', 'keyword': 'Bank', 'file': 'unknown_caller.mp3'},
-    {'time': 'Yesterday, 11:45 AM', 'risk': 'LOW', 'keyword': 'General', 'file': 'bank_call.mp3'},
-    {'time': 'Apr 26, 4:20 PM', 'risk': 'HIGH', 'keyword': 'UPI', 'file': 'upi_fraud.wav'},
-  ];
+  List<Map<String, dynamic>> reports = [];
 
   @override
   void initState() {
@@ -51,7 +41,61 @@ class _DashboardScreenState extends State<DashboardScreen>
       duration: const Duration(milliseconds: 900),
     );
     _chartAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic);
-    _animCtrl.forward();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final items = await HistoryService.getHistory();
+    int high = 0;
+    int med = 0;
+    int low = 0;
+    Map<String, int> kwds = {};
+    List<Map<String, dynamic>> reps = [];
+
+    for (var item in items) {
+      if (item.risk == 'HIGH') high++;
+      else if (item.risk == 'MEDIUM') med++;
+      else low++;
+
+      kwds[item.keyword] = (kwds[item.keyword] ?? 0) + 1;
+
+      reps.add({
+        'time': _formatDate(item.timestamp),
+        'risk': item.risk,
+        'keyword': item.keyword,
+        'file': item.fileName,
+      });
+    }
+
+    if (mounted) {
+      _animCtrl.reset();
+      setState(() {
+        totalScans = items.length;
+        highRisk = high;
+        mediumRisk = med;
+        lowRisk = low;
+        
+        // Sort keywords by value
+        var sortedKeys = kwds.keys.toList(growable: false)
+          ..sort((k1, k2) => kwds[k2]!.compareTo(kwds[k1]!));
+        keywords = { for (var k in sortedKeys.take(5)) k : kwds[k]! };
+        reports = reps.take(10).toList();
+      });
+      _animCtrl.forward();
+    }
+  }
+
+  String _formatDate(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0 && now.day == date.day) {
+      return 'Today, ${DateFormat('h:mm a').format(date)}';
+    } else if (difference.inDays == 1 || (difference.inDays == 0 && now.day != date.day)) {
+      return 'Yesterday, ${DateFormat('h:mm a').format(date)}';
+    }
+    return DateFormat('MMM d, yyyy').format(date);
   }
 
   @override
@@ -61,12 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _refreshData() {
-    _animCtrl.reset();
-    setState(() {
-      totalScans += 1;
-      highRisk += 1;
-    });
-    _animCtrl.forward();
+    _loadData();
   }
 
   Color _riskColor(String risk) {

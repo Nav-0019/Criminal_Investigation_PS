@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'result_screen.dart';
 import '../services/api_service.dart';
+import '../services/history_service.dart';
 
 class AnalysingScreen extends StatefulWidget {
   const AnalysingScreen({super.key, required this.fileName, this.filePath});
@@ -58,6 +59,19 @@ class _AnalysingScreenState extends State<AnalysingScreen>
 
       final String riskLevel = result['risk'] ?? 'LOW';
       final bool isHighRisk = riskLevel == 'HIGH';
+      
+      final keywordsList = List<String>.from(result['highlighted_words'] ?? []);
+      final topKeyword = keywordsList.isNotEmpty ? keywordsList.first : 'General';
+
+      await HistoryService.saveHistory(HistoryItem(
+        fileName: widget.fileName,
+        risk: riskLevel,
+        keyword: topKeyword,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        fullData: result,
+      ));
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
