@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import 'auth_screen.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.embedded = false});
@@ -17,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _alertThreshold = 'Medium & above';
   String _userName = 'Protected User';
   bool _isPolice = false;
+  String? _profileImagePath;
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _userName = prefs.getString('userName') ?? 'Protected User';
       _disableHistory = prefs.getBool('disableHistory') ?? false;
+      _profileImagePath = prefs.getString('userProfileImage');
       final role = prefs.getString('userRole') ?? 'Citizen';
       if (role == 'Police') {
         _isPolice = true;
@@ -47,50 +51,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SizedBox(height: 20),
         ],
 
-        // ── Profile card ───────────────────────────────────────────────────
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF3B4DB8), Color(0xFF5865D4)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ).then((_) => _loadUser());
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF3B4DB8), Color(0xFF5865D4)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.30),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.30),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                    image: _profileImagePath != null
+                        ? DecorationImage(
+                            image: FileImage(File(_profileImagePath!)),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: _profileImagePath == null
+                      ? Center(child: Text('👤', style: TextStyle(fontSize: 24)))
+                      : null,
                 ),
-                child: Center(child: Text('👤', style: TextStyle(fontSize: 24))),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_userName,
-                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                    SizedBox(height: 3),
-                    Text('NammaShield v1.0 · Team Dream Smith',
-                        style: TextStyle(color: Colors.white70, fontSize: 12)),
-                  ],
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_userName,
+                          style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 3),
+                      Text('NammaShield v1.0 · Team Dream Smith',
+                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
-            ],
+                Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
+              ],
+            ),
           ),
         ),
 
@@ -374,10 +393,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _handleLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: Text('Confirm Logout', style: AppTextStyles.title),
+        content: Text('Are you sure you want to log out of NammaShield?', style: TextStyle(color: AppColors.textDark)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Log Out', style: TextStyle(color: AppColors.highRed, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout != true) return;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userName');
     await prefs.remove('userEmail');
     await prefs.remove('userRole');
+    await prefs.remove('userPhone');
+    await prefs.remove('userBadge');
+    await prefs.remove('userStation');
+    await prefs.remove('userPassword');
 
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
