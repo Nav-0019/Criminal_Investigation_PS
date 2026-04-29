@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/history_service.dart';
@@ -701,32 +703,54 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
 
     // Mapping for rough coordinates of major cities
-    final Map<String, Offset> _cityCoords = {
-      'Bangalore': Offset(77.5, 12.9),
-      'Delhi': Offset(77.2, 28.6),
-      'Mumbai': Offset(72.8, 19.0),
-      'Chennai': Offset(80.2, 13.0),
-      'Kolkata': Offset(88.3, 22.5),
-      'Hyderabad': Offset(78.4, 17.3),
-      'Pune': Offset(73.8, 18.5),
-      'Ahmedabad': Offset(72.5, 23.0),
+    final Map<String, LatLng> _cityCoords = {
+      'Bangalore': LatLng(12.9716, 77.5946),
+      'Delhi': LatLng(28.7041, 77.1025),
+      'Mumbai': LatLng(19.0760, 72.8777),
+      'Chennai': LatLng(13.0827, 80.2707),
+      'Kolkata': LatLng(22.5726, 88.3639),
+      'Hyderabad': LatLng(17.3850, 78.4867),
+      'Pune': LatLng(18.5204, 73.8567),
+      'Ahmedabad': LatLng(23.0225, 72.5714),
     };
 
-    List<ScatterSpot> spots = [];
+    List<Marker> markers = [];
     int i = 0;
     locations.forEach((city, count) {
       if (count > 0) {
-        Offset coord = _cityCoords[city] ?? Offset(75.0 + (i * 2 % 15), 15.0 + (i * 3 % 15));
-        spots.add(ScatterSpot(
-          coord.dx,
-          coord.dy,
-          dotPainter: FlDotCirclePainter(
-            radius: (count * 4.0).clamp(8.0, 30.0),
-            color: getColor(count).withOpacity(0.8),
-            strokeWidth: 2,
-            strokeColor: AppTheme.isDark ? Colors.white24 : Colors.black12,
+        LatLng coord = _cityCoords[city] ?? LatLng(20.0 + (i * 2 % 10), 75.0 + (i * 3 % 10));
+        
+        markers.add(
+          Marker(
+            point: coord,
+            width: 40,
+            height: 40,
+            child: Tooltip(
+              message: '$city: $count reports',
+              triggerMode: TooltipTriggerMode.tap,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: getColor(count).withOpacity(0.6),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: getColor(count),
+                    width: 2,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    count.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ));
+        );
         i++;
       }
     });
@@ -737,8 +761,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         Text('Geographic Heatmap', style: AppTextStyles.subtitle),
         SizedBox(height: 12),
         Container(
-          height: 250,
-          padding: EdgeInsets.all(16),
+          height: 300,
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
@@ -751,51 +774,26 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             ],
           ),
-          child: spots.isEmpty 
-            ? Center(child: Text("No location data available yet.", style: AppTextStyles.caption))
-            : ScatterChart(
-              ScatterChartData(
-                scatterSpots: spots,
-                minX: 68,
-                maxX: 98,
-                minY: 8,
-                maxY: 38,
-                borderData: FlBorderData(show: false),
-                gridData: FlGridData(
-                  show: true,
-                  drawHorizontalLine: true,
-                  drawVerticalLine: true,
-                  getDrawingHorizontalLine: (_) => FlLine(color: AppColors.divider.withOpacity(0.5), strokeWidth: 1, dashArray: [4, 4]),
-                  getDrawingVerticalLine: (_) => FlLine(color: AppColors.divider.withOpacity(0.5), strokeWidth: 1, dashArray: [4, 4]),
-                ),
-                titlesData: FlTitlesData(show: false),
-                scatterTouchData: ScatterTouchData(
-                  enabled: true,
-                  touchTooltipData: ScatterTouchTooltipData(
-                    tooltipBgColor: AppColors.surface,
-                    getTooltipItems: (touchedSpot) {
-                      String cityName = "Unknown";
-                      locations.forEach((k, v) {
-                        Offset c = _cityCoords[k] ?? Offset(0,0);
-                        if ((c.dx - touchedSpot.x).abs() < 1 && (c.dy - touchedSpot.y).abs() < 1) {
-                          cityName = k;
-                        }
-                      });
-                      return ScatterTooltipItem(
-                        '$cityName\n',
-                        textStyle: AppTextStyles.label.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
-                        children: [
-                          TextSpan(
-                            text: 'Reports: ',
-                            style: AppTextStyles.caption,
-                          ),
-                        ],
-                      );
-                    },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: locations.isEmpty 
+              ? Center(child: Text("No location data available yet.", style: AppTextStyles.caption))
+              : FlutterMap(
+                  options: MapOptions(
+                    initialCenter: LatLng(20.5937, 78.9629), // Center of India
+                    initialZoom: 3.5,
                   ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: AppTheme.isDark 
+                        ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png'
+                        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.nammashield',
+                    ),
+                    MarkerLayer(markers: markers),
+                  ],
                 ),
-              ),
-            ),
+          ),
         ),
         SizedBox(height: 12),
         Wrap(

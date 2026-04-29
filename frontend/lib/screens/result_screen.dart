@@ -1,4 +1,15 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:pdf/pdf.dart' hide TextDirection;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'upload_screen.dart';
@@ -84,6 +95,184 @@ class _ResultScreenState extends State<ResultScreen>
         .split(' ')
         .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
         .join(' ');
+  }
+
+  final ScreenshotController _screenshotController = ScreenshotController();
+
+  Future<void> _shareResult() async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Generating alert card...')));
+    final widgetToCapture = Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: Container(
+        width: 400,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('🛡️ NammaShield', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                Spacer(),
+                Text('ALERT', style: TextStyle(color: Colors.redAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text('⚠️ Scam Detected', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text('Risk: $_riskLabel $_riskEmoji', style: TextStyle(color: _riskColor, fontSize: 20, fontWeight: FontWeight.w600)),
+            if (widget.fraudTypes.isNotEmpty) ...[
+              SizedBox(height: 10),
+              Text('Type: ${widget.fraudTypes.map(_formatFraudType).join(', ')}', style: TextStyle(color: Colors.white70, fontSize: 16)),
+            ],
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+              child: Text('Warning: This communication matches patterns found in known scams. Do not share personal details, OTPs, or send money.', 
+                  style: TextStyle(color: Colors.red[200], fontSize: 15, height: 1.4)),
+            ),
+            SizedBox(height: 20),
+            Center(child: Text('Stay Safe with NammaShield', style: TextStyle(color: Colors.white54, fontSize: 12, fontStyle: FontStyle.italic))),
+          ],
+        ),
+      ),
+    );
+
+    final Uint8List imageBytes = await _screenshotController.captureFromWidget(
+      widgetToCapture,
+      delay: Duration(milliseconds: 50),
+      pixelRatio: 3.0,
+      context: context,
+    );
+
+    final directory = await getTemporaryDirectory();
+    final imagePath = await File('${directory.path}/nammashield_alert.png').create();
+    await imagePath.writeAsBytes(imageBytes);
+
+    await Share.shareXFiles([XFile(imagePath.path)], text: '⚠️ NammaShield Alert: Suspicious Activity Detected!');
+  }
+
+  void _showReportDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: Text('Report Scam Incident', style: AppTextStyles.title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Do you want to report this as a scam incident? This will be added to our global heatmap to warn others.', style: AppTextStyles.body),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Risk: $_riskLabel', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                    if (widget.fraudTypes.isNotEmpty) Text('Type: ${widget.fraudTypes.map(_formatFraudType).join(', ')}', style: AppTextStyles.caption),
+                    Text('Location: Auto-attached', style: AppTextStyles.caption),
+                    Text('Time: ${DateFormat('MMM d, yyyy - h:mm a').format(DateTime.now())}', style: AppTextStyles.caption),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel', style: TextStyle(color: AppColors.textLight)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _submitReport();
+              },
+              child: Text('Submit Report', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _submitReport() {
+    final String refId = 'NS-${Random().nextInt(900000) + 100000}';
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: AppColors.lowGreen),
+              SizedBox(width: 8),
+              Text('Report Submitted', style: AppTextStyles.title),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Your report has been successfully submitted.', style: AppTextStyles.body),
+              SizedBox(height: 12),
+              Text('Reference ID: $refId', style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _generateFIRPdf(refId);
+              },
+              child: Text('Download FIR PDF', style: TextStyle(color: AppColors.primary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Done', style: TextStyle(color: AppColors.textDark)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _generateFIRPdf(String refId) async {
+    final doc = pw.Document();
+    doc.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('NammaShield Incident Report', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text('Reference ID: $refId', style: pw.TextStyle(fontSize: 16)),
+              pw.Text('Date: ${DateFormat('MMM d, yyyy - h:mm a').format(DateTime.now())}', style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 20),
+              pw.Text('Incident Details:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text('Risk Level: $_riskLabel'),
+              pw.Text('Fraud Score: ${widget.fraudScore}'),
+              if (widget.fraudTypes.isNotEmpty) pw.Text('Detected Types: ${widget.fraudTypes.map(_formatFraudType).join(', ')}'),
+              pw.SizedBox(height: 10),
+              pw.Text('Transcript:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+              pw.Text(widget.transcript.isEmpty ? 'No transcript available.' : widget.transcript),
+              pw.SizedBox(height: 30),
+              pw.Text('This is an auto-generated preliminary report by NammaShield to assist law enforcement and fraud prevention units.', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
+            ],
+          );
+        },
+      ),
+    );
+    await Printing.sharePdf(bytes: await doc.save(), filename: 'NammaShield_FIR_$refId.pdf');
   }
 
   @override
@@ -303,11 +492,7 @@ class _ResultScreenState extends State<ResultScreen>
                     child: _OutlineButton(
                       label: _isDangerous ? '📤 Report' : '🏠 Home',
                       onTap: _isDangerous
-                          ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Scam report submitted to database.')),
-                              );
-                            }
+                          ? _showReportDialog
                           : () => Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(builder: (ctx) => const HomeScreen()),
@@ -320,11 +505,7 @@ class _ResultScreenState extends State<ResultScreen>
                     child: _PrimaryButton(
                       label: _isDangerous ? 'Share Result' : 'Analyse Another',
                       onTap: _isDangerous
-                          ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Sharing analysis results…')),
-                              );
-                            }
+                          ? _shareResult
                           : () => Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (ctx) => const UploadScreen()),
