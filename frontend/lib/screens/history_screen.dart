@@ -15,6 +15,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   List<HistoryItem> _historyItems = [];
   bool _isLoading = true;
+  String _currentFilter = 'ALL';
 
   int _highCount = 0;
   int _medCount = 0;
@@ -166,20 +167,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('All Analyses', style: AppTextStyles.subtitle),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.divider),
+                    PopupMenuButton<String>(
+                      initialValue: _currentFilter,
+                      onSelected: (val) => setState(() => _currentFilter = val),
+                      color: AppColors.surface,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.filter_list_rounded, size: 14, color: AppColors.textLight),
+                            SizedBox(width: 4),
+                            Text(_currentFilter == 'ALL' ? 'Filter' : _currentFilter, 
+                                style: TextStyle(fontSize: 12, color: AppColors.textLight)),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.filter_list_rounded, size: 14, color: AppColors.textLight),
-                          SizedBox(width: 4),
-                          Text('Filter', style: TextStyle(fontSize: 12, color: AppColors.textLight)),
-                        ],
-                      ),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(value: 'ALL', child: Text('All')),
+                        PopupMenuItem(value: 'HIGH', child: Text('High Risk')),
+                        PopupMenuItem(value: 'MEDIUM', child: Text('Medium Risk')),
+                        PopupMenuItem(value: 'LOW', child: Text('Low Risk')),
+                      ],
                     ),
                   ],
                 ),
@@ -204,12 +217,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           )
         else
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, i) {
-                  final item = _historyItems[i];
+          Builder(
+            builder: (context) {
+              final filtered = _currentFilter == 'ALL' 
+                  ? _historyItems 
+                  : _historyItems.where((i) => i.risk == _currentFilter).toList();
+              
+              if (filtered.isEmpty) {
+                return SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text('No results for $_currentFilter filter.', style: AppTextStyles.body),
+                    ),
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) {
+                      final item = filtered[i];
                   final result = item.fullData;
                   final fraudScore = (result['fraud_score'] as num?)?.toInt() ?? 0;
 
@@ -297,10 +327,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   );
                 },
-                childCount: _historyItems.length,
+                childCount: filtered.length,
               ),
             ),
-          ),
+          );
+        }),
 
         const SliverPadding(padding: EdgeInsets.only(bottom: 20)),
       ],

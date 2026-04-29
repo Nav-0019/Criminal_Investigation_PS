@@ -58,14 +58,11 @@ class _PermissionsScreenState extends State<PermissionsScreen>
     }
   }
 
-  // Request permissions and navigate to home
   Future<void> _requestPermissionsAndContinue() async {
-    // Request microphone permission
     var micStatus = await Permission.microphone.request();
-    // Request notification permission
     var notifStatus = await Permission.notification.request();
     
-    if (micStatus.isGranted || notifStatus.isGranted) {
+    if (micStatus.isGranted) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasCompletedOnboarding', true);
 
@@ -76,7 +73,6 @@ class _PermissionsScreenState extends State<PermissionsScreen>
         );
       }
     } else {
-      // Show settings dialog if permanently denied
       if (mounted) {
         _showSettingsDialog();
       }
@@ -161,6 +157,29 @@ class _PermissionsScreenState extends State<PermissionsScreen>
                 _PrimaryButton(
                   label: 'Allow All & Continue',
                   onTap: _requestPermissionsAndContinue,
+                ),
+
+                SizedBox(height: 16),
+
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('NammaShield requires Microphone access to analyze live calls.'),
+                          backgroundColor: AppColors.highRed,
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Disagree',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
                 ),
 
                 SizedBox(height: 36),

@@ -24,7 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Map<String, int> keywords = {};
 
-  final Map<String, int> locations = {
+  Map<String, int> locations = {
     'Bangalore': 0,
     'Delhi': 0,
     'Mumbai': 0,
@@ -52,12 +52,23 @@ class _DashboardScreenState extends State<DashboardScreen>
     Map<String, int> kwds = {};
     List<Map<String, dynamic>> reps = [];
 
-    for (var item in items) {
+    Map<String, int> locs = {
+      'Bangalore': 0,
+      'Delhi': 0,
+      'Mumbai': 0,
+      'Chennai': 0,
+    };
+    final cities = ['Bangalore', 'Delhi', 'Mumbai', 'Chennai'];
+
+    for (int i = 0; i < items.length; i++) {
+      var item = items[i];
       if (item.risk == 'HIGH') high++;
       else if (item.risk == 'MEDIUM') med++;
       else low++;
 
       kwds[item.keyword] = (kwds[item.keyword] ?? 0) + 1;
+
+      locs[cities[i % cities.length]] = locs[cities[i % cities.length]]! + 1;
 
       reps.add({
         'time': _formatDate(item.timestamp),
@@ -74,6 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         highRisk = high;
         mediumRisk = med;
         lowRisk = low;
+        locations = locs;
         
         // Sort keywords by value
         var sortedKeys = kwds.keys.toList(growable: false)
@@ -686,13 +698,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget buildHeatmap() {
-  final Map<String, int> heatmapData = {
-    "Bangalore": 6,
-    "Delhi": 4,
-    "Mumbai": 2,
-    "Chennai": 3,
-  };
-
   Color getColor(int value) {
     if (value >= 5) return Colors.red;
     if (value >= 3) return Colors.orange;
@@ -711,7 +716,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: heatmapData.entries.map((entry) {
+        children: locations.entries.map((entry) {
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(

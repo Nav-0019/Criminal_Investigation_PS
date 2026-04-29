@@ -56,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildBody() {
     switch (_tabIndex) {
       case 1:
-        return const HistoryScreen(embedded: true);
+        return HistoryScreen(embedded: true);
       case 2:
-        return const DashboardScreen(embedded: true);
+        return DashboardScreen(embedded: true);
       case 3:
-        return const SettingsScreen(embedded: true);
+        return SettingsScreen(embedded: true);
       default:
         return _AnalyseTab(
           recent: _recent,
@@ -80,13 +80,18 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(child: _buildBody()),
-      bottomNavigationBar: _BottomNav(
-        current: _tabIndex,
-        onTap: (i) => setState(() => _tabIndex = i),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppTheme.themeNotifier,
+      builder: (context, _, __) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(child: _buildBody()),
+          bottomNavigationBar: _BottomNav(
+            current: _tabIndex,
+            onTap: (i) => setState(() => _tabIndex = i),
+          ),
+        );
+      },
     );
   }
 }
