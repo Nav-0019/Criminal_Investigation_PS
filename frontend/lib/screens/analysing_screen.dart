@@ -80,11 +80,12 @@ class _AnalysingScreenState extends State<AnalysingScreen>
         }
       } catch (_) {}
 
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
       await HistoryService.saveHistory(HistoryItem(
         fileName: widget.fileName,
         risk: riskLevel,
         keyword: topKeyword,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
+        timestamp: timestamp,
         location: locationStr,
         fullData: result,
       ));
@@ -103,6 +104,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
             fraudScore: (result['fraud_score'] as num?)?.toInt() ?? 0,
             highlightedWords: List<String>.from(result['highlighted_words'] ?? []),
             fraudTypes: List<String>.from(result['fraud_types'] ?? []),
+            timestamp: timestamp,
           ),
           transitionsBuilder: (context, anim, secondaryAnim, child) =>
               FadeTransition(opacity: anim, child: child),

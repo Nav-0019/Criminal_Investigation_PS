@@ -8,6 +8,7 @@ class HistoryItem {
   final int timestamp;
   final String location;
   final Map<String, dynamic> fullData;
+  bool isReported;
 
   HistoryItem({
     required this.fileName,
@@ -16,6 +17,7 @@ class HistoryItem {
     required this.timestamp,
     required this.location,
     required this.fullData,
+    this.isReported = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +28,7 @@ class HistoryItem {
       'timestamp': timestamp,
       'location': location,
       'fullData': fullData,
+      'isReported': isReported,
     };
   }
 
@@ -37,6 +40,7 @@ class HistoryItem {
       timestamp: json['timestamp'] ?? DateTime.now().millisecondsSinceEpoch,
       location: json['location'] ?? 'Unknown',
       fullData: json['fullData'] ?? {},
+      isReported: json['isReported'] ?? false,
     );
   }
 }
@@ -66,6 +70,22 @@ class HistoryService {
     return historyJson.map((jsonStr) {
       return HistoryItem.fromJson(jsonDecode(jsonStr));
     }).toList();
+  }
+
+  static Future<void> markAsReported(int timestamp) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> historyJson = prefs.getStringList(_key) ?? [];
+    List<String> updated = [];
+    
+    for (var jsonStr in historyJson) {
+      final item = HistoryItem.fromJson(jsonDecode(jsonStr));
+      if (item.timestamp == timestamp) {
+        item.isReported = true;
+      }
+      updated.add(jsonEncode(item.toJson()));
+    }
+    
+    await prefs.setStringList(_key, updated);
   }
 
   static Future<void> clearHistory() async {

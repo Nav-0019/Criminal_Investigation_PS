@@ -22,7 +22,9 @@ class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    final items = await HistoryService.getHistory();
+    final allItems = await HistoryService.getHistory();
+    final items = allItems.where((i) => i.isReported).toList();
+    
     int high = 0;
     Map<String, int> locs = {};
 

@@ -21,9 +21,9 @@ class _PoliceCaseRegistryScreenState extends State<PoliceCaseRegistryScreen> {
   }
 
   Future<void> _loadData() async {
-    final items = await HistoryService.getHistory();
-    // Only show High and Medium risk as active cases
-    final filtered = items.where((i) => i.risk == 'HIGH' || i.risk == 'MEDIUM').toList();
+    final allItems = await HistoryService.getHistory();
+    // Only show explicitly reported cases that are High or Medium risk
+    final filtered = allItems.where((i) => i.isReported && (i.risk == 'HIGH' || i.risk == 'MEDIUM')).toList();
     if (mounted) {
       setState(() {
         _cases = filtered;

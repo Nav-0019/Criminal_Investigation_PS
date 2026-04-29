@@ -11,6 +11,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
+import '../services/history_service.dart';
 import 'home_screen.dart';
 import 'upload_screen.dart';
 
@@ -25,6 +26,7 @@ class ResultScreen extends StatefulWidget {
     this.fraudScore = 0,
     this.highlightedWords = const [],
     this.fraudTypes = const [],
+    required this.timestamp,
   });
 
   final String fileName;
@@ -35,6 +37,7 @@ class ResultScreen extends StatefulWidget {
   final int fraudScore;
   final List<String> highlightedWords;
   final List<String> fraudTypes;
+  final int timestamp;
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -203,8 +206,14 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  void _submitReport() {
+  void _submitReport() async {
     final String refId = 'NS-${Random().nextInt(900000) + 100000}';
+    
+    // Mark the history item as reported so Police Dashboard can see it
+    await HistoryService.markAsReported(widget.timestamp);
+
+    if (!mounted) return;
+    
     showDialog(
       context: context,
       builder: (ctx) {
