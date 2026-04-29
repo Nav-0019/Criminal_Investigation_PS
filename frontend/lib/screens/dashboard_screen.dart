@@ -52,13 +52,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     Map<String, int> kwds = {};
     List<Map<String, dynamic>> reps = [];
 
-    Map<String, int> locs = {
-      'Bangalore': 0,
-      'Delhi': 0,
-      'Mumbai': 0,
-      'Chennai': 0,
-    };
-    final cities = ['Bangalore', 'Delhi', 'Mumbai', 'Chennai'];
+    Map<String, int> locs = {};
 
     for (int i = 0; i < items.length; i++) {
       var item = items[i];
@@ -68,7 +62,9 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       kwds[item.keyword] = (kwds[item.keyword] ?? 0) + 1;
 
-      locs[cities[i % cities.length]] = locs[cities[i % cities.length]]! + 1;
+      String loc = item.location;
+      if (loc.isEmpty) loc = 'Unknown';
+      locs[loc] = (locs[loc] ?? 0) + 1;
 
       reps.add({
         'time': _formatDate(item.timestamp),
@@ -698,46 +694,136 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget buildHeatmap() {
-  Color getColor(int value) {
-    if (value >= 5) return Colors.red;
-    if (value >= 3) return Colors.orange;
-    return Colors.green;
+    Color getColor(int value) {
+      if (value >= 5) return AppColors.highRed;
+      if (value >= 3) return AppColors.medAmber;
+      return AppColors.lowGreen;
+    }
+
+    // Mapping for rough coordinates of major cities
+    final Map<String, Offset> _cityCoords = {
+      'Bangalore': Offset(77.5, 12.9),
+      'Delhi': Offset(77.2, 28.6),
+      'Mumbai': Offset(72.8, 19.0),
+      'Chennai': Offset(80.2, 13.0),
+      'Kolkata': Offset(88.3, 22.5),
+      'Hyderabad': Offset(78.4, 17.3),
+      'Pune': Offset(73.8, 18.5),
+      'Ahmedabad': Offset(72.5, 23.0),
+    };
+
+    List<ScatterSpot> spots = [];
+    int i = 0;
+    locations.forEach((city, count) {
+      if (count > 0) {
+        Offset coord = _cityCoords[city] ?? Offset(75.0 + (i * 2 % 15), 15.0 + (i * 3 % 15));
+        spots.add(ScatterSpot(
+          coord.dx,
+          coord.dy,
+          dotPainter: FlDotCirclePainter(
+            radius: (count * 4.0).clamp(8.0, 30.0),
+            color: getColor(count).withOpacity(0.8),
+            strokeWidth: 2,
+            strokeColor: AppTheme.isDark ? Colors.white24 : Colors.black12,
+          ),
+        ));
+        i++;
+      }
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Geographic Heatmap', style: AppTextStyles.subtitle),
+        SizedBox(height: 12),
+        Container(
+          height: 250,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.divider),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: spots.isEmpty 
+            ? Center(child: Text("No location data available yet.", style: AppTextStyles.caption))
+            : ScatterChart(
+              ScatterChartData(
+                scatterSpots: spots,
+                minX: 68,
+                maxX: 98,
+                minY: 8,
+                maxY: 38,
+                borderData: FlBorderData(show: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawHorizontalLine: true,
+                  drawVerticalLine: true,
+                  getDrawingHorizontalLine: (_) => FlLine(color: AppColors.divider.withOpacity(0.5), strokeWidth: 1, dashArray: [4, 4]),
+                  getDrawingVerticalLine: (_) => FlLine(color: AppColors.divider.withOpacity(0.5), strokeWidth: 1, dashArray: [4, 4]),
+                ),
+                titlesData: FlTitlesData(show: false),
+                scatterTouchData: ScatterTouchData(
+                  enabled: true,
+                  touchTooltipData: ScatterTouchTooltipData(
+                    tooltipBgColor: AppColors.surface,
+                    getTooltipItems: (touchedSpot) {
+                      String cityName = "Unknown";
+                      locations.forEach((k, v) {
+                        Offset c = _cityCoords[k] ?? Offset(0,0);
+                        if ((c.dx - touchedSpot.x).abs() < 1 && (c.dy - touchedSpot.y).abs() < 1) {
+                          cityName = k;
+                        }
+                      });
+                      return ScatterTooltipItem(
+                        '$cityName\n',
+                        textStyle: AppTextStyles.label.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+                        children: [
+                          TextSpan(
+                            text: 'Reports: ',
+                            style: AppTextStyles.caption,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+        ),
+        SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: locations.entries.where((e) => e.value > 0).map((entry) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: getColor(entry.value).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: getColor(entry.value).withOpacity(0.5)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on, size: 12, color: getColor(entry.value)),
+                  SizedBox(width: 4),
+                  Text('${entry.key}: ${entry.value}',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
   }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        "Scam Heatmap",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-      SizedBox(height: 10),
-
-      Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: locations.entries.map((entry) {
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: getColor(entry.value).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: getColor(entry.value)),
-            ),
-            child: Column(
-              children: [
-                Text(entry.key,
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text("${entry.value} reports"),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    ],
-  );
-}
 
   Widget _legend(Color color, String label) {
     return Row(

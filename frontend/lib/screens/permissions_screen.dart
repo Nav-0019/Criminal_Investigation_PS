@@ -31,6 +31,13 @@ class _PermissionsScreenState extends State<PermissionsScreen>
       color: Color(0xFFFFF3E0),
       permission: Permission.notification,
     ),
+    _PermItem(
+      icon: '📍',
+      title: 'Location',
+      subtitle: 'Tag scam reports with your city for the Scam Heatmap',
+      color: Color(0xFFE8F5E9),
+      permission: Permission.location,
+    ),
   ];
 
   @override
@@ -61,6 +68,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
   Future<void> _requestPermissionsAndContinue() async {
     var micStatus = await Permission.microphone.request();
     var notifStatus = await Permission.notification.request();
+    var locStatus = await Permission.location.request();
     
     if (micStatus.isGranted) {
       final prefs = await SharedPreferences.getInstance();

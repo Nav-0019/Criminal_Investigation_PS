@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../theme/app_theme.dart';
 import 'result_screen.dart';
 import '../services/api_service.dart';
@@ -63,11 +65,27 @@ class _AnalysingScreenState extends State<AnalysingScreen>
       final keywordsList = List<String>.from(result['highlighted_words'] ?? []);
       final topKeyword = keywordsList.isNotEmpty ? keywordsList.first : 'General';
 
+      String locationStr = 'Unknown';
+      try {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (serviceEnabled) {
+          LocationPermission permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
+            Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+            List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+            if (placemarks.isNotEmpty) {
+              locationStr = placemarks.first.locality ?? placemarks.first.administrativeArea ?? 'Unknown';
+            }
+          }
+        }
+      } catch (_) {}
+
       await HistoryService.saveHistory(HistoryItem(
         fileName: widget.fileName,
         risk: riskLevel,
         keyword: topKeyword,
         timestamp: DateTime.now().millisecondsSinceEpoch,
+        location: locationStr,
         fullData: result,
       ));
 

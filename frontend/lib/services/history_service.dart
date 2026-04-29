@@ -6,6 +6,7 @@ class HistoryItem {
   final String risk;
   final String keyword;
   final int timestamp;
+  final String location;
   final Map<String, dynamic> fullData;
 
   HistoryItem({
@@ -13,6 +14,7 @@ class HistoryItem {
     required this.risk,
     required this.keyword,
     required this.timestamp,
+    required this.location,
     required this.fullData,
   });
 
@@ -22,6 +24,7 @@ class HistoryItem {
       'risk': risk,
       'keyword': keyword,
       'timestamp': timestamp,
+      'location': location,
       'fullData': fullData,
     };
   }
@@ -32,6 +35,7 @@ class HistoryItem {
       risk: json['risk'] ?? 'LOW',
       keyword: json['keyword'] ?? 'General',
       timestamp: json['timestamp'] ?? DateTime.now().millisecondsSinceEpoch,
+      location: json['location'] ?? 'Unknown',
       fullData: json['fullData'] ?? {},
     );
   }
