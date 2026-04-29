@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
+import 'auth_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.embedded = false});
@@ -28,6 +29,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('userName') ?? 'Protected User';
+      final role = prefs.getString('userRole') ?? 'Citizen';
+      if (role == 'Police') {
+        _userName += ' (Police Official)';
+      }
     });
   }
 
@@ -204,6 +209,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
 
+        SizedBox(height: 20),
+
+        // ── ACCOUNT Section ────────────────────────────────────────────────
+        _SectionLabel(label: 'ACCOUNT'),
+        SizedBox(height: 10),
+
+        _SettingsCard(children: [
+          _NavRow(
+            icon: '🚪',
+            iconBg: Color(0xFFFFEBEE),
+            title: 'Log Out',
+            subtitle: 'Sign out of NammaShield',
+            onTap: () => _handleLogout(context),
+          ),
+        ]),
+
         SizedBox(height: 32),
 
         // ── Footer ─────────────────────────────────────────────────────────
@@ -360,6 +381,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userName');
+    await prefs.remove('userEmail');
+    await prefs.remove('userRole');
+
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (ctx) => const AuthScreen()),
+        (route) => false,
+      );
+    }
   }
 }
 

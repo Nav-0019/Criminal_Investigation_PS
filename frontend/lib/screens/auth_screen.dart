@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import 'splash_screen.dart';
+import 'police_home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -14,6 +15,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   bool _isSignUp = true;
+  String _selectedRole = 'Citizen';
 
   Future<void> _submit() async {
     final name = _nameController.text.trim();
@@ -32,12 +34,20 @@ class _AuthScreenState extends State<AuthScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', name);
     await prefs.setString('userEmail', email);
+    await prefs.setString('userRole', _selectedRole);
 
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const SplashScreen()),
-      );
+      if (_selectedRole == 'Police') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const PoliceHomeScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SplashScreen()),
+        );
+      }
     }
   }
 
@@ -118,6 +128,58 @@ class _AuthScreenState extends State<AuthScreen> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 ),
+              ),
+              SizedBox(height: 24),
+              
+              // Role Selection
+              Text('Select Account Type', style: AppTextStyles.caption),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedRole = 'Citizen'),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _selectedRole == 'Citizen' ? AppColors.primary : AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _selectedRole == 'Citizen' ? AppColors.primary : AppColors.divider),
+                        ),
+                        child: Text(
+                          'Citizen',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _selectedRole == 'Citizen' ? Colors.white : AppColors.textDark,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedRole = 'Police'),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _selectedRole == 'Police' ? AppColors.primary : AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _selectedRole == 'Police' ? AppColors.primary : AppColors.divider),
+                        ),
+                        child: Text(
+                          'Police Official',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _selectedRole == 'Police' ? Colors.white : AppColors.textDark,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 32),
 
