@@ -129,7 +129,7 @@ class _AnalyseTab extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.divider),
                 ),
@@ -298,7 +298,7 @@ class _BottomNav extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: SafeArea(
@@ -366,7 +366,7 @@ class _ActionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
-          color: isPrimary ? AppColors.primary : Colors.white,
+          color: isPrimary ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
               color: isPrimary ? AppColors.primary : AppColors.divider),
@@ -417,7 +417,7 @@ class _RecentItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.divider),
         boxShadow: [

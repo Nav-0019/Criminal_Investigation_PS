@@ -195,7 +195,7 @@ class _AnalysingScreenState extends State<AnalysingScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.divider),
                   ),

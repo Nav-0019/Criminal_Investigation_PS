@@ -139,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surface,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppColors.divider),
                           ),
@@ -185,7 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.divider),
                     boxShadow: [
@@ -423,7 +423,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.divider),
                     boxShadow: [
@@ -529,7 +529,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.divider),
                     boxShadow: [
@@ -610,7 +610,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.divider),
           boxShadow: [

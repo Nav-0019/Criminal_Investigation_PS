@@ -130,7 +130,7 @@ class _UploadScreenState extends State<UploadScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 36),
                   decoration: BoxDecoration(
-                    color: hasFile ? AppColors.primaryLight : Colors.white,
+                    color: hasFile ? AppColors.primaryLight : AppColors.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: hasFile
@@ -229,7 +229,7 @@ class _UploadScreenState extends State<UploadScreen>
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   decoration: BoxDecoration(
                     color:
-                        _isRecording ? AppColors.highRedBg : Colors.white,
+                        _isRecording ? AppColors.highRedBg : AppColors.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: _isRecording
@@ -303,7 +303,7 @@ class _UploadScreenState extends State<UploadScreen>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.divider),
                     ),

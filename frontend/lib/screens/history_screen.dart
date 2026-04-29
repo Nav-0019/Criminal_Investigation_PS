@@ -99,7 +99,7 @@ class HistoryScreen extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.divider),
                           boxShadow: [
@@ -144,7 +144,7 @@ class HistoryScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppColors.divider),
                       ),
@@ -186,7 +186,7 @@ class HistoryScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.divider),
                       boxShadow: [
