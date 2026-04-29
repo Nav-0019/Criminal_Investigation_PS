@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 import '../theme/app_theme.dart';
 import 'analysing_screen.dart';
 
@@ -21,6 +24,10 @@ class _UploadScreenState extends State<UploadScreen>
   late final AnimationController _recordCtrl;
   late final Animation<double> _recordPulse;
 
+  // ── Audio Recorder ───────────────────────────────────────────────────
+  final _audioRecorder = AudioRecorder();
+  String? _recordingPath;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +40,7 @@ class _UploadScreenState extends State<UploadScreen>
 
   @override
   void dispose() {
+    _audioRecorder.dispose();
     _recordCtrl.dispose();
     super.dispose();
   }
@@ -81,7 +89,53 @@ class _UploadScreenState extends State<UploadScreen>
     }
   }
 
-  // ── Navigate to analysing screen ─────────────────────────────────────
+  // ── Audio Recording ────────────────────────────────────────────────
+  Future<void> _startRecording() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        final dir = await getApplicationDocumentsDirectory();
+        _recordingPath = '${dir.path}/Live_Record_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc, sampleRate: 16000),
+          path: _recordingPath!,
+        );
+        setState(() => _isRecording = true);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Microphone permission required to record.'),
+              backgroundColor: AppColors.highRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error starting record: $e');
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    try {
+      final path = await _audioRecorder.stop();
+      setState(() => _isRecording = false);
+      
+      if (path != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AnalysingScreen(
+              fileName: path.split('/').last,
+              filePath: path,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error stopping record: $e');
+    }
+  }
   void _analyse() {
     if (_pickedFile == null) return;
     Navigator.push(
@@ -210,18 +264,10 @@ class _UploadScreenState extends State<UploadScreen>
 
               // ── Record Button ──────────────────────────────────────────
               GestureDetector(
-                onLongPressStart: (_) => setState(() => _isRecording = true),
-                onLongPressEnd: (_) {
-                  setState(() => _isRecording = false);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AnalysingScreen(
-                        fileName: 'Recorded_Call_Live.wav',
-                        filePath: 'internal/recording/live_01.wav',
-                      ),
-                    ),
-                  );
+                onLongPressStart: (_) => _startRecording(),
+                onLongPressEnd: (_) => _stopRecording(),
+                onLongPressCancel: () {
+                  if (_isRecording) _stopRecording();
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
