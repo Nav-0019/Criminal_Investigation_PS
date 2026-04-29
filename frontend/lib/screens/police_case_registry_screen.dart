@@ -51,6 +51,15 @@ class _PoliceCaseRegistryScreenState extends State<PoliceCaseRegistryScreen> {
         title: Text('Digital FIR Case Registry', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.surface,
         elevation: 1,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: AppColors.primary),
+            onPressed: () {
+              _loadData();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Refreshing case registry...')));
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),

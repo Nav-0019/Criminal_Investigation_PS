@@ -68,6 +68,15 @@ class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
         title: Text('Command Dashboard', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.surface,
         elevation: 1,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: AppColors.primary),
+            onPressed: () {
+              _loadData();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Refreshing dashboard data...')));
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
