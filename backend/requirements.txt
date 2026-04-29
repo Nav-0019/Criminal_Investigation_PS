@@ -4,7 +4,3 @@ python-multipart
 openai-whisper
 ffmpeg-python
 gunicorn
-sqlalchemy
-passlib[bcrypt]
-python-jose[cryptography]
-pydantic

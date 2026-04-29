@@ -118,58 +118,6 @@ class ApiService {
       );
     }
   }
-
-  /// Sign up a new user
-  static Future<Map<String, dynamic>> signup(Map<String, dynamic> userData) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/signup');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(userData),
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        final body = json.decode(response.body);
-        throw ApiException(
-          message: body['detail'] ?? 'Failed to sign up.',
-          code: 'SIGNUP_FAILED',
-        );
-      }
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException(message: 'Network error or server is down.', code: 'CONNECTION_ERROR');
-    }
-  }
-
-  /// Log in an existing user
-  static Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/login');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else if (response.statusCode == 401) {
-        throw ApiException(message: 'Invalid email or password', code: 'UNAUTHORIZED');
-      } else {
-        final body = json.decode(response.body);
-        throw ApiException(
-          message: body['detail'] ?? 'Failed to log in.',
-          code: 'LOGIN_FAILED',
-        );
-      }
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException(message: 'Network error or server is down.', code: 'CONNECTION_ERROR');
-    }
-  }
 }
 
 /// Custom exception for API errors with user-friendly messages

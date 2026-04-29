@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
-import '../services/api_service.dart';
 import 'splash_screen.dart';
 import 'police_home_screen.dart';
 
@@ -25,110 +24,86 @@ class _AuthScreenState extends State<AuthScreen> {
   String _selectedRole = 'Citizen';
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _isLoading = false;
 
   Future<void> _submit() async {
-    if (_isLoading) return;
-    setState(() => _isLoading = true);
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       _showError('Please enter email and password.');
-      setState(() => _isLoading = false);
       return;
     }
 
     final prefs = await SharedPreferences.getInstance();
 
-    try {
-      if (_isSignUp) {
-        final name = _nameController.text.trim();
-        final confirmPassword = _confirmPasswordController.text.trim();
+    if (_isSignUp) {
+      final name = _nameController.text.trim();
+      final confirmPassword = _confirmPasswordController.text.trim();
 
-        if (name.isEmpty) {
-          _showError('Please enter your name.');
-          setState(() => _isLoading = false);
+      if (name.isEmpty) {
+        _showError('Please enter your name.');
+        return;
+      }
+      if (password != confirmPassword) {
+        _showError('Passwords do not match.');
+        return;
+      }
+
+      if (_selectedRole == 'Citizen') {
+        final phone = _phoneController.text.trim();
+        if (phone.isEmpty) {
+          _showError('Please enter your phone number.');
           return;
         }
-        if (password != confirmPassword) {
-          _showError('Passwords do not match.');
-          setState(() => _isLoading = false);
-          return;
-        }
-
-        String? phone, badge, station;
-
-        if (_selectedRole == 'Citizen') {
-          phone = _phoneController.text.trim();
-          if (phone.isEmpty) {
-            _showError('Please enter your phone number.');
-            setState(() => _isLoading = false);
-            return;
-          }
-        } else {
-          badge = _badgeController.text.trim();
-          station = _stationController.text.trim();
-          if (badge.isEmpty || station.isEmpty) {
-            _showError('Please enter badge number and jurisdiction.');
-            setState(() => _isLoading = false);
-            return;
-          }
-        }
-
-        final userData = {
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': _selectedRole,
-          'phone': phone,
-          'badge': badge,
-          'station': station,
-        };
-
-        final result = await ApiService.signup(userData);
-        final user = result['user'];
-
-        await prefs.setString('accessToken', result['access_token']);
-        await prefs.setString('userName', user['name'] ?? '');
-        await prefs.setString('userEmail', user['email'] ?? '');
-        await prefs.setString('userRole', user['role'] ?? '');
-        if (user['phone'] != null) await prefs.setString('userPhone', user['phone']);
-        if (user['badge'] != null) await prefs.setString('userBadge', user['badge']);
-        if (user['station'] != null) await prefs.setString('userStation', user['station']);
-
+        await prefs.setString('userPhone', phone);
       } else {
-        // Login mode
-        final result = await ApiService.login(email, password);
-        final user = result['user'];
-        _selectedRole = user['role'] ?? 'Citizen';
-
-        await prefs.setString('accessToken', result['access_token']);
-        await prefs.setString('userName', user['name'] ?? '');
-        await prefs.setString('userEmail', user['email'] ?? '');
-        await prefs.setString('userRole', user['role'] ?? '');
-        if (user['phone'] != null) await prefs.setString('userPhone', user['phone']);
-        if (user['badge'] != null) await prefs.setString('userBadge', user['badge']);
-        if (user['station'] != null) await prefs.setString('userStation', user['station']);
-      }
-
-      if (mounted) {
-        if (_selectedRole == 'Police') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const PoliceHomeScreen()),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const SplashScreen()),
-          );
+        final badge = _badgeController.text.trim();
+        final station = _stationController.text.trim();
+        if (badge.isEmpty || station.isEmpty) {
+          _showError('Please enter badge number and jurisdiction.');
+          return;
         }
+        await prefs.setString('userBadge', badge);
+        await prefs.setString('userStation', station);
       }
-    } catch (e) {
-      _showError(e.toString().replaceAll('ApiException(SIGNUP_FAILED): ', '').replaceAll('ApiException(LOGIN_FAILED): ', '').replaceAll('ApiException(CONNECTION_ERROR): ', ''));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+
+      await prefs.setString('userName', name);
+      await prefs.setString('userEmail', email);
+      await prefs.setString('userPassword', password); // Simulated saving
+      await prefs.setString('userRole', _selectedRole);
+    } else {
+      // Login mode - simple simulation
+      final savedEmail = prefs.getString('userEmail');
+      final savedPassword = prefs.getString('userPassword');
+      final savedRole = prefs.getString('userRole') ?? 'Citizen';
+
+      if (savedEmail != null && savedPassword != null) {
+        if (email != savedEmail || password != savedPassword) {
+           _showError('Invalid credentials.');
+           return;
+        }
+        _selectedRole = savedRole; // Use the saved role for routing
+      } else {
+        // Fallback for demo purposes if no user saved
+        await prefs.setString('userName', 'Demo User');
+        await prefs.setString('userEmail', email);
+        await prefs.setString('userRole', 'Citizen');
+        _selectedRole = 'Citizen';
+      }
+    }
+
+    if (mounted) {
+      if (_selectedRole == 'Police') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const PoliceHomeScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SplashScreen()),
+        );
+      }
     }
   }
 
@@ -329,33 +304,25 @@ class _AuthScreenState extends State<AuthScreen> {
 
                 // Submit Button
                 GestureDetector(
-                  onTap: _isLoading ? null : _submit,
+                  onTap: _submit,
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: _isLoading ? AppColors.primary.withValues(alpha: 0.7) : AppColors.primary,
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        if (!_isLoading)
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
                     ),
-                    child: _isLoading 
-                      ? const Center(
-                          child: SizedBox(
-                            width: 20, height: 20, 
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                          )
-                        )
-                      : Text(
-                          _isSignUp ? 'Sign Up' : 'Log In',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
+                    child: Text(
+                      _isSignUp ? 'Sign Up' : 'Log In',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
                 SizedBox(height: 24),
