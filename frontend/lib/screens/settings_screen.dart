@@ -13,11 +13,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _autoAnalyse = true;
   bool _storeHistory = true;
   bool _contribute = false;
   String _alertThreshold = 'Medium & above';
   String _userName = 'Protected User';
+  bool _isPolice = false;
 
   @override
   void initState() {
@@ -31,6 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _userName = prefs.getString('userName') ?? 'Protected User';
       final role = prefs.getString('userRole') ?? 'Citizen';
       if (role == 'Police') {
+        _isPolice = true;
         _userName += ' (Police Official)';
       }
     });
@@ -93,30 +94,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
 
-        SizedBox(height: 28),
+        if (!_isPolice) ...[
+          SizedBox(height: 28),
+          // ── ANALYSIS Section ───────────────────────────────────────────────
+          _SectionLabel(label: 'ANALYSIS'),
+          SizedBox(height: 10),
 
-        // ── ANALYSIS Section ───────────────────────────────────────────────
-        _SectionLabel(label: 'ANALYSIS'),
-        SizedBox(height: 10),
-
-        _SettingsCard(children: [
-          _ToggleRow(
-            icon: '⚡',
-            iconBg: Color(0xFFE6F1FB),
-            title: 'Auto-analyse on call end',
-            subtitle: 'Run analysis automatically after every call',
-            value: _autoAnalyse,
-            onChanged: (v) => setState(() => _autoAnalyse = v),
-          ),
-          Divider(height: 1, color: AppColors.divider),
-          _NavRow(
-            icon: '🔔',
-            iconBg: Color(0xFFFFF3E0),
-            title: 'Alert threshold',
-            subtitle: 'Notify at: $_alertThreshold',
-            onTap: () => _showThresholdSheet(context),
-          ),
-        ]),
+          _SettingsCard(children: [
+            _NavRow(
+              icon: '🔔',
+              iconBg: Color(0xFFFFF3E0),
+              title: 'Alert threshold',
+              subtitle: 'Notify at: $_alertThreshold',
+              onTap: () => _showThresholdSheet(context),
+            ),
+          ]),
+        ],
 
         SizedBox(height: 20),
 
@@ -140,74 +133,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ]),
 
-        SizedBox(height: 20),
+        if (!_isPolice) ...[
+          SizedBox(height: 20),
 
-        // ── PRIVACY Section ────────────────────────────────────────────────
-        _SectionLabel(label: 'PRIVACY'),
-        SizedBox(height: 10),
+          // ── PRIVACY Section ────────────────────────────────────────────────
+          _SectionLabel(label: 'PRIVACY'),
+          SizedBox(height: 10),
 
-        _SettingsCard(children: [
-          _ToggleRow(
-            icon: '💾',
-            iconBg: Color(0xFFEAF3DE),
-            title: 'Store analysis history',
-            subtitle: 'Secure Local Persistence',
-            value: _storeHistory,
-            onChanged: (v) => setState(() => _storeHistory = v),
-          ),
-          Divider(height: 1, color: AppColors.divider),
-          _ToggleRow(
-            icon: '🌐',
-            iconBg: Color(0xFFF5F0FF),
-            title: 'Contribute to scam database',
-            subtitle: 'Share anonymous trend data',
-            value: _contribute,
-            onChanged: (v) => setState(() => _contribute = v),
-          ),
-        ]),
+          _SettingsCard(children: [
+            _ToggleRow(
+              icon: '💾',
+              iconBg: Color(0xFFEAF3DE),
+              title: 'Store analysis history',
+              subtitle: 'Secure Local Persistence',
+              value: _storeHistory,
+              onChanged: (v) => setState(() => _storeHistory = v),
+            ),
+            Divider(height: 1, color: AppColors.divider),
+            _ToggleRow(
+              icon: '🌐',
+              iconBg: Color(0xFFF5F0FF),
+              title: 'Contribute to scam database',
+              subtitle: 'Share anonymous trend data',
+              value: _contribute,
+              onChanged: (v) => setState(() => _contribute = v),
+            ),
+          ]),
 
-        SizedBox(height: 20),
+          SizedBox(height: 20),
 
-        // ── ABOUT Section ──────────────────────────────────────────────────
-        _SectionLabel(label: 'ABOUT'),
-        SizedBox(height: 10),
+          // ── ABOUT Section ──────────────────────────────────────────────────
+          _SectionLabel(label: 'ABOUT'),
+          SizedBox(height: 10),
 
-        _SettingsCard(children: [
-          _NavRow(
-            icon: '📋',
-            iconBg: Color(0xFFF5F5F0),
-            title: 'Privacy Policy',
-            subtitle: 'How we handle your data',
-            onTap: () => _showPrivacyPolicy(context),
-          ),
-          Divider(height: 1, color: AppColors.divider),
-          _NavRow(
-            icon: '⭐',
-            iconBg: Color(0xFFFFF9E6),
-            title: 'Rate NammaShield',
-            subtitle: 'Help us improve',
-            onTap: () => _showRatingDialog(context),
-          ),
-          Divider(height: 1, color: AppColors.divider),
-          _NavRow(
-            icon: '🐛',
-            iconBg: Color(0xFFFCEBEB),
-            title: 'Report a bug',
-            subtitle: 'Send feedback to Team Dream Smith',
-            onTap: () async {
-              final uri = Uri.parse('mailto:shubhamchauhan0019@gmail.com?subject=NammaShield%20Bug%20Report');
-              try {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Could not open email app. Please email shubhamchauhan0019@gmail.com')),
-                  );
+          _SettingsCard(children: [
+            _NavRow(
+              icon: '📋',
+              iconBg: Color(0xFFF5F5F0),
+              title: 'Privacy Policy',
+              subtitle: 'How we handle your data',
+              onTap: () => _showPrivacyPolicy(context),
+            ),
+            Divider(height: 1, color: AppColors.divider),
+            _NavRow(
+              icon: '⭐',
+              iconBg: Color(0xFFFFF9E6),
+              title: 'Rate NammaShield',
+              subtitle: 'Help us improve',
+              onTap: () => _showRatingDialog(context),
+            ),
+            Divider(height: 1, color: AppColors.divider),
+            _NavRow(
+              icon: '🐛',
+              iconBg: Color(0xFFFCEBEB),
+              title: 'Report a bug',
+              subtitle: 'Send feedback to Team Dream Smith',
+              onTap: () async {
+                final uri = Uri.parse('mailto:shubhamchauhan0019@gmail.com?subject=NammaShield%20Bug%20Report');
+                try {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Could not open email app. Please email shubhamchauhan0019@gmail.com')),
+                    );
+                  }
                 }
-              }
-            },
-          ),
-        ]),
+              },
+            ),
+          ]),
+        ],
 
         SizedBox(height: 20),
 

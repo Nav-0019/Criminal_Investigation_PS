@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/history_service.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class PoliceCaseRegistryScreen extends StatefulWidget {
   @override
@@ -101,9 +104,7 @@ class _PoliceCaseRegistryScreenState extends State<PoliceCaseRegistryScreen> {
                         DataCell(
                           IconButton(
                             icon: Icon(Icons.picture_as_pdf, color: AppColors.primary),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Generating FIR-ready PDF for $caseId...')));
-                            },
+                            onPressed: () => _generateFIRPdf(c, caseId, dateStr, typeStr, locStr),
                           ),
                         ),
                       ],
@@ -120,4 +121,35 @@ class _PoliceCaseRegistryScreenState extends State<PoliceCaseRegistryScreen> {
     );
   }
 
+  Future<void> _generateFIRPdf(HistoryItem c, String caseId, String dateStr, String typeStr, String locStr) async {
+    final doc = pw.Document();
+    doc.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('NammaShield Incident Report (Police Copy)', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text('Reference ID: $caseId', style: pw.TextStyle(fontSize: 16)),
+              pw.Text('Date Logged: $dateStr', style: pw.TextStyle(fontSize: 14)),
+              pw.SizedBox(height: 20),
+              pw.Text('Incident Details:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text('Risk Level: ${c.risk}'),
+              pw.Text('Detected Type: $typeStr'),
+              pw.Text('Location: $locStr'),
+              pw.SizedBox(height: 30),
+              pw.Text('Raw Data Dump:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text(c.fullData.toString(), style: pw.TextStyle(fontSize: 10)),
+              pw.SizedBox(height: 30),
+              pw.Text('This is an auto-generated preliminary report by NammaShield to assist law enforcement and fraud prevention units.', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
+            ],
+          );
+        },
+      ),
+    );
+    await Printing.sharePdf(bytes: await doc.save(), filename: 'NammaShield_FIR_$caseId.pdf');
+  }
 }
