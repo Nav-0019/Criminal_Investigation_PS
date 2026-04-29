@@ -255,6 +255,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           fraudScore: fraudScore,
                           highlightedWords: List<String>.from(result['highlighted_words'] ?? []),
                           fraudTypes: List<String>.from(result['fraud_types'] ?? []),
+                          timestamp: item.timestamp,
                         ),
                       ),
                     ),

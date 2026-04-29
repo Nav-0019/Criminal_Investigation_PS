@@ -456,6 +456,7 @@ class _RecentItem extends StatelessWidget {
             fraudScore: fraudScore,
             highlightedWords: List<String>.from(result['highlighted_words'] ?? []),
             fraudTypes: List<String>.from(result['fraud_types'] ?? []),
+            timestamp: data.timestamp,
           ),
         ),
       ),
