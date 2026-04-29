@@ -50,7 +50,7 @@ class HistoryService {
 
   static Future<void> saveHistory(HistoryItem item) async {
     final prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool('storeHistory') ?? true)) return;
+    if (prefs.getBool('disableHistory') == true) return;
 
     List<String> historyJson = prefs.getStringList(_key) ?? [];
     

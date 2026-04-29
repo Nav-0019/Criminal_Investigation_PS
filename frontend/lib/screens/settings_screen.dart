@@ -13,7 +13,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _storeHistory = true;
+  bool _disableHistory = false;
   String _alertThreshold = 'Medium & above';
   String _userName = 'Protected User';
   bool _isPolice = false;
@@ -28,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('userName') ?? 'Protected User';
-      _storeHistory = prefs.getBool('storeHistory') ?? true;
+      _disableHistory = prefs.getBool('disableHistory') ?? false;
       final role = prefs.getString('userRole') ?? 'Citizen';
       if (role == 'Police') {
         _isPolice = true;
@@ -142,15 +142,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           _SettingsCard(children: [
             _ToggleRow(
-              icon: '💾',
+              icon: '🕵️',
               iconBg: Color(0xFFEAF3DE),
-              title: 'Store analysis history',
-              subtitle: 'Secure Local Persistence',
-              value: _storeHistory,
+              title: 'Disable analysis history',
+              subtitle: 'Do not save scans locally',
+              value: _disableHistory,
               onChanged: (v) async {
-                setState(() => _storeHistory = v);
+                setState(() => _disableHistory = v);
                 final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('storeHistory', v);
+                await prefs.setBool('disableHistory', v);
               },
             ),
           ]),
