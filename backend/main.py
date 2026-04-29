@@ -188,8 +188,16 @@ def analyze(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="The uploaded file is empty (0 bytes). Please try selecting the file again.")
 
     try:
-        logger.info("⏳ Transcribing: %s (%s)", file.filename, ext)
-        result = model.transcribe(temp_path)
+        logger.info("⏳ Loading audio: %s (%s)", file.filename, ext)
+        audio = whisper.load_audio(temp_path)
+        
+        # If the audio is extremely short (e.g., < 0.1 seconds), the Whisper CNN will downsample it to 0, causing a PyTorch reshape crash.
+        # This usually happens if Android's file_picker partially corrupted the file during caching.
+        if audio.shape[0] < whisper.audio.SAMPLE_RATE * 0.1:
+            raise ValueError("The audio file is too short, empty, or was corrupted during selection on your phone. Please try picking the file from a different folder (like 'Internal Storage' instead of 'Recent').")
+
+        logger.info("⏳ Transcribing audio of length %d", audio.shape[0])
+        result = model.transcribe(audio)
         transcript = result.get("text", "").strip()
         language = result.get("language", "unknown")
         logger.info("✅ Transcription complete — %d chars, language=%s", len(transcript), language)
