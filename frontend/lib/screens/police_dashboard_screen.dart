@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../theme/app_theme.dart';
+import '../services/history_service.dart';
 
 class PoliceDashboardScreen extends StatefulWidget {
   @override
@@ -9,22 +10,38 @@ class PoliceDashboardScreen extends StatefulWidget {
 }
 
 class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
-  // Mock Data for Police Command Center
-  final Map<String, dynamic> _stats = {
-    'Total Scam Reports': '1,423',
-    'Active Investigations': '87',
-    'High-Risk Suspects': '34',
-    'Victim Count': '912',
-  };
+  List<HistoryItem> _historyItems = [];
+  int _totalScams = 0;
+  int _highRisk = 0;
+  Map<String, int> _locations = {};
 
-  final Map<String, int> _locations = {
-    'Bangalore': 450,
-    'Delhi': 320,
-    'Mumbai': 210,
-    'Hyderabad': 180,
-    'Chennai': 120,
-    'Mysore': 90,
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final items = await HistoryService.getHistory();
+    int high = 0;
+    Map<String, int> locs = {};
+
+    for (var item in items) {
+      if (item.risk == 'HIGH') high++;
+      String loc = item.location;
+      if (loc.isEmpty) loc = 'Unknown';
+      locs[loc] = (locs[loc] ?? 0) + 1;
+    }
+
+    if (mounted) {
+      setState(() {
+        _historyItems = items;
+        _totalScams = items.length;
+        _highRisk = high;
+        _locations = locs;
+      });
+    }
+  }
 
   final Map<String, LatLng> _cityCoords = {
     'Bangalore': LatLng(12.9716, 77.5946),
@@ -66,7 +83,12 @@ class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.6,
               physics: NeverScrollableScrollPhysics(),
-              children: _stats.entries.map((e) => _buildStatCard(e.key, e.value)).toList(),
+              children: [
+                _buildStatCard('Total Scam Reports', '$_totalScams'),
+                _buildStatCard('High-Risk Cases', '$_highRisk'),
+                _buildStatCard('Victim Count', '$_totalScams'),
+                _buildStatCard('Cities Affected', '${_locations.length}'),
+              ],
             ),
             SizedBox(height: 24),
             
@@ -75,13 +97,6 @@ class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
             Text('Live geographic monitoring of scam clusters.', style: AppTextStyles.caption),
             SizedBox(height: 12),
             _buildHeatmap(),
-            
-            SizedBox(height: 24),
-            Text('Smart Alerts', style: AppTextStyles.subtitle),
-            SizedBox(height: 12),
-            _buildAlertCard('🚨 Active Threat Level', 'Bangalore experiencing a 34% spike in OTP fraud today.', AppColors.highRed),
-            _buildAlertCard('🟠 Unresolved High-Risk', '12 cases pending assignment in Mumbai jurisdiction.', AppColors.medAmber),
-            _buildAlertCard('🔁 Scam Network Detected', 'AI clustered 45 numbers to Suspect Entity #SE-891.', AppColors.primary),
             SizedBox(height: 20),
           ],
         ),
@@ -162,34 +177,6 @@ class _PoliceDashboardScreenState extends State<PoliceDashboardScreen> {
             MarkerLayer(markers: markers),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAlertCard(String title, String subtitle, Color color) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: color, size: 28),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark, fontSize: 15)),
-                SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(color: AppColors.textMid, fontSize: 13)),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
